@@ -8,9 +8,11 @@ from .class_loader import class_loader
 
 from ..bots.dummy import DummyBot
 from ..bots.gpt import GPTBot
+from ..bots.chatgpt import ChatGPTBot
 
 LOADERS =  {
     "newton": loader_cls,
     "dummy": class_loader(DummyBot),
     "gpt": class_loader(GPTBot),
+    "chatgpt": class_loader(ChatGPTBot),
 }
