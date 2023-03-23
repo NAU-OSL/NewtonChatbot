@@ -100,7 +100,7 @@
 
 </script>
 
-<div class="panel">
+<div class="panel wizardPanel">
   <div class="selector">
     <label>
       Chat mode:
@@ -135,14 +135,19 @@
 
   {#if chatInstance}
     <Header {chatInstance} title="{chatInstance.mode} - {model.name }" showConfigs={false}/>
-    <Chat {chatInstance}/>
-    <AutoCompleteInput {chatInstance}/>
+    <div class="chatContainer">
+      <Chat {chatInstance}/>
+    </div>
+    <div class="wizardPanelText">
+      <AutoCompleteInput {chatInstance}/>
+    </div>
   {/if}
 </div>
 
 <style>
   .panel {
     height: 100%;
+    position: relative;
   }
 
   .selector {
@@ -153,6 +158,11 @@
 
   form {
     padding: 0 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+    margin: auto;
   }
 
   button {
@@ -163,4 +173,16 @@
     display: flex;
     box-sizing: border-box;
   }
+
+  .chatContainer{
+    height: 85%;
+  }
+
+  .wizardPanelText {
+    position: absolute !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
 </style>
