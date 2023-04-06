@@ -136,10 +136,10 @@
   {#if chatInstance}
     <Header {chatInstance} title="{chatInstance.mode} - {model.name }" showConfigs={false}/>
     <div class="chatContainer">
-      <Chat {chatInstance}/>
+      <Chat {chatInstance} isExtraChat={true}/>
     </div>
     <div class="wizardPanelText">
-      <AutoCompleteInput {chatInstance}/>
+      <AutoCompleteInput {chatInstance} isExtraChat={true}/>
     </div>
   {/if}
 </div>

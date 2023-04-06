@@ -80,6 +80,8 @@ class ChatGPTBot:
 
             response_messages= self.get_response_messages()
 
+            self.attach_prompt_message("assistant", self.get_trimmed_message(response_messages[0]))
+
             for message_content in response_messages:
                 instance.history.append(MessageContext.create_message(
                     (message_content),
@@ -99,17 +101,21 @@ class ChatGPTBot:
         # pylint: disable=unused-argument
 
         try:
-            self.attach_prompt_message("user", context.text)
+            if context.getattr('isGPTMessage'):
+                self.attach_prompt_message("assistant", self.get_trimmed_message(context.text))
 
-            response_messages = self.get_response_messages()
+                context.instance.config['conversation_context_updated'] = self.conversation_context
+                # context.reply(self.conversation_context)
+            
+            elif context.getattr('isUserPrompt'):
+                self.attach_prompt_message("user",  self.get_trimmed_message(context.text))
 
-            for message_content in response_messages:
-                context.instance.history.append(MessageContext.create_message(
-                    (message_content),
-                    "bot"
-                ))
+                response_messages = self.get_response_messages()
 
-                context.reply(message_content)
+                for message_content in response_messages:
+                    context.reply(message_content)
+
+                    # context.instance.config['conversation_context_updated'] = self.conversation_context
 
         except Exception:
             import traceback
@@ -157,6 +163,12 @@ class ChatGPTBot:
                 "content": content
             }
         )
+    
+    def get_trimmed_message(self, message):
+        start = message.index(':')
+        end = message.index('####metadata#:')
+        return message[start+1: end]
+
 
     def get_response_messages(self):
         # global total_tokens_used
@@ -187,7 +199,7 @@ class ChatGPTBot:
 
             content = getattr(message, "content").strip()
 
-            self.attach_prompt_message("assistant", content)
+            # self.attach_prompt_message("assistant", content)
 
             response_messages.append(
                 f"####markdown#:\n{content}\n####metadata#:{meta_json}")

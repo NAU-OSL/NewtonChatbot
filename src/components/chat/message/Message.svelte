@@ -19,6 +19,7 @@
   export let index: number;
   export let chat: HTMLElement | null = null;
   export let preview: boolean = false;
+  export let isExtraChat: boolean = false;
 
   let {showBuildMessages, showKernelMessages, showReplied, directSendToUser } = chatInstance.config;
 
@@ -229,13 +230,22 @@
         class="inner"
       >
         <div class="main">
-          {#if reply}
+          <div class="{message.isGPTMessage || message.isUserPrompt? "selected" : "" }">
+            {#if reply}
             <Reply {chatInstance} {reply} {chat} {scrollBottom}/>
-          {/if}
-          <MessageParts {chatInstance} {message} {preview} {scrollBottom}/>
+            {/if}
+            <MessageParts {chatInstance} {message} {preview} {scrollBottom}/>
+          </div>
         </div>
         {#if !preview}
-          <MessageBottom {chatInstance} {message} {index} viewReplied={!!reply} on:toggleViewReplied={(event) => setReplyVisibility(event.detail.viewReplied)}/>
+          <MessageBottom  
+            {chatInstance}
+            {message} 
+            {index} 
+            {isExtraChat}
+            viewReplied={!!reply} 
+            on:toggleViewReplied={(event) => setReplyVisibility(event.detail.viewReplied)}
+            />
         {/if}
       </div>
     </div>
@@ -301,5 +311,9 @@
 
   .main {
     padding: 0.4em;
+  }
+
+  .main .selected {
+    border: 2px solid green;
   }
 </style>

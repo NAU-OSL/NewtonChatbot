@@ -129,3 +129,9 @@ class MessageContext:
         if text is not None:
             reply_text = text + '\n' + reply_text
         self.reply(reply_text, type_, checkpoint=checkpoint)
+    
+    def getattr(self, attr_name):
+        if attr_name in self.original_message:
+            return self.original_message[attr_name]
+        
+        return None

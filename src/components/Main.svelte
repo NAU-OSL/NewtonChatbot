@@ -21,7 +21,7 @@
 {#if chatInstance}
   {#if $notebookCommModel && ($restrictNotebooks.length === 0 || $restrictNotebooks.includes(name)) }
     <Header {chatInstance} title="Newton - {name}"/>
-    <Chat {chatInstance}/>
+    <Chat {chatInstance} isExtraChat={false}/>
     {#if $hasKernel}
       {#if $wizardMode}
         <WizardChat {chatInstance}/>
