@@ -165,8 +165,8 @@ class ChatGPTBot:
         )
     
     def get_trimmed_message(self, message):
-        start = message.index(':')
-        end = message.index('####metadata#:')
+        start = message.find(':')
+        end = min(message.find('####metadata#:'), len(message))
         return message[start+1: end]
 
 
