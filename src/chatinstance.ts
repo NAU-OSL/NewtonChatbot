@@ -141,6 +141,8 @@ export function createChatInstance(model: NotebookCommModel, chatName: string, m
       findById,
       sendAutoComplete,
       refresh,
+
+      model,
   
       configMap,
       config,

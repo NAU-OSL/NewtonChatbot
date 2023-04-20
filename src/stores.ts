@@ -175,6 +175,8 @@ export const wizardMode: Writable<boolean> = writable(true);
 export const wizardValue: Writable<string> = writable("")
 export const wizardPreviewMessage: Writable<IChatMessage[]> = writable([]);
 
+export const wizardOpenChatInstance:Writable<{[id:string]:number}> = writable({});
+
 export const kernelStatus = createStatus();
 export const panelWidget = createPanelWidget();
 export const errorHandler = createErrorHandler();

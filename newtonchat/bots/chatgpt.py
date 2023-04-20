@@ -22,7 +22,7 @@ class ChatGPTBot:
         with open("newtonchat\\bots\\chatgpt_config.json", "r") as f:
             prompt_config = json.load(f)
 
-        base_prompt = prompt_config["base_prompt"] + prompt_config["rules_to_be_followed"]
+        base_prompt = prompt_config["base_prompt"]
 
     except Exception as e:
         base_prompt = ""
@@ -73,19 +73,21 @@ class ChatGPTBot:
             self._set_config(original, data, 'n', int)
 
             instance.config["enable_autocomplete"] = False
-            
+
             if self.base_prompt != self.prompt:
                 self.conversation_context = []
                 self.attach_prompt_message("system", self.prompt)
 
-            response_messages= self.get_response_messages()
+            response_messages = self.get_response_messages()
 
-            self.attach_prompt_message("assistant", self.get_trimmed_message(response_messages[0]))
+            self.attach_prompt_message(
+                "assistant", self.get_trimmed_message(response_messages[0]))
 
             for message_content in response_messages:
                 instance.history.append(MessageContext.create_message(
                     (message_content),
-                    "bot"
+                    "bot",
+                    isGPTMessage=True
                 ))
 
         except Exception:
@@ -102,20 +104,30 @@ class ChatGPTBot:
 
         try:
             if context.getattr('isGPTMessage'):
-                self.attach_prompt_message("assistant", self.get_trimmed_message(context.text))
+                self.attach_prompt_message(
+                    "assistant", self.get_trimmed_message(context.text))
 
                 context.instance.config['conversation_context_updated'] = self.conversation_context
-                # context.reply(self.conversation_context)
-            
+
+                context.reply('GPT_message_block' +
+                              self.conversation_context[-1]["content"])
+
             elif context.getattr('isUserPrompt'):
-                self.attach_prompt_message("user",  self.get_trimmed_message(context.text))
+                conv_context = self.attach_prompt_message(
+                    "user",  self.get_trimmed_message(context.text))
+
+                context.reply('User_prompt_block:::before' +
+                              self.conversation_context[-1]["content"])
 
                 response_messages = self.get_response_messages()
 
                 for message_content in response_messages:
-                    context.reply(message_content)
+                    context.reply(message_content, isGPTMessage=True)
 
-                    # context.instance.config['conversation_context_updated'] = self.conversation_context
+                context.reply('User_prompt_block:::after' +
+                              self.conversation_context[-1]["content"])
+
+                # context.instance.config['conversation_context_updated'] = self.conversation_context
 
         except Exception:
             import traceback
@@ -152,30 +164,30 @@ class ChatGPTBot:
             self.api_key = form.get("api_key", "").strip()
 
     def attach_prompt_message(self, role, content):
-        if role =="user":
+        if role == "user":
             rules = self.prompt_config["rules_to_be_followed"]
 
             content = f"{content} \\n {rules}"
-                
+
         self.conversation_context.append(
             {
                 "role": role,
                 "content": content
             }
         )
-    
-    def get_trimmed_message(self, message):
-        start = message.find(':')
-        end = min(message.find('####metadata#:'), len(message))
-        return message[start+1: end]
 
+        return self.conversation_context
+
+    def get_trimmed_message(self, message):
+        end = min(message.find('####metadata#:'), len(message))
+        return message[0: end].replace('####markdown#:\n', '')
 
     def get_response_messages(self):
         # global total_tokens_used
         import openai
         import json
         openai.api_key = self.api_key
-        
+
         response = openai.ChatCompletion.create(
             messages=self.conversation_context,
             **self.model_config
@@ -188,7 +200,6 @@ class ChatGPTBot:
 
         total_tokens_used = response["usage"]["total_tokens"]
 
-
         if total_tokens_used > 3000:
             self.conversation_context.pop()
 
@@ -199,7 +210,7 @@ class ChatGPTBot:
 
             content = getattr(message, "content").strip()
 
-            # self.attach_prompt_message("assistant", content)
+            self.attach_prompt_message("assistant", content)
 
             response_messages.append(
                 f"####markdown#:\n{content}\n####metadata#:{meta_json}")
