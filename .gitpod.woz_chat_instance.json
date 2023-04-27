@@ -1,0 +1,111 @@
+{
+    "instances": {
+        "base": {
+            "name": "base",
+            "mode": "newton",
+            "bot": {},
+            "history": [
+                {
+                    "id": "a2a404bf-4872-4bd3-8a92-21d8c1d7f92d",
+                    "text": "Hello, I am Newton, an assistant that can translate pseudo-code into python code. How can I help you?",
+                    "type": "bot",
+                    "timestamp": 1682633423933,
+                    "reply": null,
+                    "display": 0,
+                    "kernelProcess": 0,
+                    "kernelDisplay": 0,
+                    "feedback": {
+                        "rate": 0,
+                        "reason": "",
+                        "otherreason": ""
+                    },
+                    "loading": false,
+                    "isGPTMessage": null
+                }
+            ],
+            "config": {
+                "process_in_kernel": false,
+                "enable_autocomplete": false,
+                "enable_auto_loading": false,
+                "loading": false,
+                "process_base_chat_message": true,
+                "show_replied": false,
+                "show_index": false,
+                "show_time": true,
+                "show_build_messages": true,
+                "show_kernel_messages": true,
+                "show_metadata": false,
+                "direct_send_to_user": false
+            }
+        },
+        "b35dfa15-8ee5-498d-9aa2-70bd365f78b4": {
+            "name": "b35dfa15-8ee5-498d-9aa2-70bd365f78b4",
+            "mode": "chatgpt",
+            "bot": {
+                "config": {
+                    "model": "gpt-3.5-turbo-0301",
+                    "temperature": 1,
+                    "max_tokens": 1024,
+                    "top_p": 0.9,
+                    "frequency_penalty": 0,
+                    "presence_penalty": 0,
+                    "n": 1
+                },
+                "prompt": "Pretend that you are a Natural Language to Python Code translator named - 'Newton' and your goal is to translate the instructions given in natural language to Python code.\\nWhen the instruction can be converted into simple steps, give me the Python Code or else prompt the user to break the instruction into simple steps.\\nRespond with your name, when you're ready.",
+                "rules_to_be_followed": "Refrain the response only to the given instruction.",
+                "conversation_context": [
+                    {
+                        "role": "system",
+                        "content": "Pretend that you are a Natural Language to Python Code translator named - 'Newton' and your goal is to translate the instructions given in natural language to Python code.\\nWhen the instruction can be converted into simple steps, give me the Python Code or else prompt the user to break the instruction into simple steps.\\nRespond with your name, when you're ready."
+                    },
+                    {
+                        "role": "assistant",
+                        "content": "Hi! I am Newton, a Natural Language to Python Code translator. How may I assist you?"
+                    }
+                ],
+                "!form": {
+                    "api_key": [
+                        "file",
+                        {
+                            "value": ""
+                        }
+                    ]
+                }
+            },
+            "history": [
+                {
+                    "id": "6ec9b389-6be6-498b-a8a4-83a6e09a8925",
+                    "text": "####markdown#:\nHi! I am Newton, a Natural Language to Python Code translator. How may I assist you?\n####metadata#:{\"tokens\": 102}",
+                    "type": "bot",
+                    "timestamp": 1682633471520,
+                    "reply": null,
+                    "display": 0,
+                    "kernelProcess": 0,
+                    "kernelDisplay": 0,
+                    "feedback": {
+                        "rate": 0,
+                        "reason": "",
+                        "otherreason": ""
+                    },
+                    "loading": false,
+                    "isGPTMessage": true
+                }
+            ],
+            "config": {
+                "process_in_kernel": true,
+                "enable_autocomplete": false,
+                "enable_auto_loading": false,
+                "loading": false,
+                "process_base_chat_message": true,
+                "show_replied": false,
+                "show_index": false,
+                "show_time": true,
+                "show_build_messages": true,
+                "show_kernel_messages": true,
+                "show_metadata": false,
+                "direct_send_to_user": false
+            }
+        }
+    },
+    "!!dead_instances": []
+}

@@ -1,15 +1,15 @@
 import { Widget } from '@lumino/widgets';
-import type { SvelteComponentDev } from 'svelte/internal';
+import type { ComponentType, SvelteComponent } from 'svelte';
 import { get } from 'svelte/store';
 import { mainChatIcon } from '../iconimports';
 import { jupyterapp, panelWidget } from '../stores';
 
 export class SveltePanelView extends Widget {
-  private _panel: SvelteComponentDev;
+  private _panel: SvelteComponent;
   private _detached: boolean;
   
   constructor(
-    svelteComponent: typeof SvelteComponentDev,
+    svelteComponent: ComponentType,
     props: Record<string, any>,
   ) {
     super();
@@ -39,7 +39,7 @@ export class SveltePanelView extends Widget {
 }
 
 export function openPanel(
-  svelteComponent: typeof SvelteComponentDev,
+  svelteComponent: ComponentType,
   title: string,
   props: Record<string, any>
 ) {

@@ -20,6 +20,7 @@ install_requires = [
     "jupyterlab>=3.3.3",
     "jupyter_server>=1.6,<2",
     "lunr",
+    "openai"
 ]
 
 extra_require = {
