@@ -1,7 +1,7 @@
 <script type="ts">
   import type { IChatInstance } from "../../../chatinstance";
   import type { IChatMessage } from "../../../common/chatbotInterfaces";
-  import { sendMessageToBuild, sendMessageToWizardInput, sendMessageToUser } from "../../../common/messages";
+  import { sendMessageToBuild, sendMessageToWizardInput, sendMessageToUser, selectChatGPTResponse, sendChatGPTRequest } from "../../../common/messages";
   import { wizardMode } from "../../../stores";
   import IconButton from "../../generic/IconButton.svelte";
   import FeedbackButtons from "./FeedbackButtons.svelte";
@@ -9,6 +9,7 @@
   import Profile from "./Profile.svelte";
   import ReplyButtons from "./ReplyButtons.svelte";
   import Digging from "../../icons/fa-digging.svelte";
+  import Save from "../../icons/fa-save.svelte";
   import Title from "../../icons/title.svelte";
   import ChatIcon from "../../icons/chaticon.svelte";
 
@@ -16,6 +17,7 @@
   export let message: IChatMessage;
   export let index: number;
   export let viewReplied: boolean;
+  export let isExtraChat: boolean = false;
 
   let { showTime, showIndex, directSendToUser } = chatInstance.config;
   let timestamp = message.timestamp;
@@ -35,6 +37,14 @@
     await sendMessageToUser(chatInstance, message, false);
   }
 
+  async function addToGPTContext(){
+    await selectChatGPTResponse(chatInstance, message, false);
+  }
+
+  async function sendUserPrompt(){
+    await sendChatGPTRequest(chatInstance, message, false);
+  }
+
 </script>
 
 <div class="bottom {message.type}">
@@ -50,12 +60,18 @@
       {#if $directSendToUser}
         <IconButton title="To user" on:click={sendToUser}><ChatIcon/></IconButton>
       {/if}
+      {#if !isExtraChat && message.type != 'user' && !message.isGPTMessage}
+        <IconButton title="add to GPT context" on:click={addToGPTContext}><Save/></IconButton>
+      {/if}
+      {#if !isExtraChat && message.type == 'user'}
+        <IconButton title="send user prompt" on:click={sendUserPrompt}><Save/></IconButton>
+      {/if}
     {/if}
     {#if message.loading}
       <div class="loading" title="Processing message">⌛️</div>
     {/if}
   </div>
-  
+
   <div class="last">
     {#if message.type !== 'user'}
       <FeedbackButtons {chatInstance} {message}/>

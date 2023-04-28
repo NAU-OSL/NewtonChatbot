@@ -18,6 +18,8 @@
 	export let minRows: number = 1;
 	export let maxRows: number | null = null;
 
+  export let isExtraChat: boolean = false;
+
   let { enableAutoLoading } = chatInstance.config;
 	
 	$: minHeight = `${1 + minRows * 1.2}em`;
@@ -57,6 +59,9 @@
       e.preventDefault();
       let newMessage = createMessage(value);
       if (newMessage !== null) {
+        if(isExtraChat)
+          newMessage.isUserPrompt = true;
+        
         chatInstance.addNew(newMessage);
         clear();
       }

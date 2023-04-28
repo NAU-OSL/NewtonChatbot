@@ -7,7 +7,7 @@ import { mainChatIcon } from './iconimports';
 import { requestAPI } from './server';
 import type { ISanitizer } from '@jupyterlab/apputils';
 import type { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { openPanel, SveltePanelView } from './components/SveltePanelView';
+import {SveltePanelView, openPanel } from './components/SveltePanelView';
 
 function createErrorHandler() {
   let current: string[] = [];
@@ -171,9 +171,11 @@ export const jupyterRenderMime: Writable<IRenderMimeRegistry | null> = writable(
 export const notebookCommModel: Writable<NotebookCommModel | null> = writable(null);
 export const connectionReady: Writable<boolean> = writable(false);
 
-export const wizardMode: Writable<boolean> = writable(true);
+export const wizardMode: Writable<boolean> = writable(false);
 export const wizardValue: Writable<string> = writable("")
 export const wizardPreviewMessage: Writable<IChatMessage[]> = writable([]);
+
+export const wizardOpenChatInstance:Writable<{[id:string]:number}> = writable({});
 
 export const kernelStatus = createStatus();
 export const panelWidget = createPanelWidget();

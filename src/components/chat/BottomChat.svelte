@@ -11,6 +11,8 @@
   export let alternativeKeyDown: ((e: any) => Promise<boolean>) | null = null;
   export let alternativeEnter: ((e: any) => Promise<boolean>) | null = null;
   export let alternativeInput: ((e: any) => Promise<boolean>) | null = null;
+
+  export let isExtraChat: boolean = false;
   export async function clear() {
     value = "";
     await tick();
@@ -41,6 +43,7 @@
     {alternativeEnter}
     {alternativeInput}
     {clear}
+    {isExtraChat}
   ><slot name="chat"/></ChatInput>
   <slot name="after"/>
 </div>

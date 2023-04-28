@@ -7,6 +7,8 @@
   import Header from './header/Header.svelte';
   import IconButton from "./generic/IconButton.svelte";
   import DynamicInput from "./jsonform/DynamicInput.svelte";
+  import { wizardOpenChatInstance } from "../stores";
+  import {onDestroy} from "svelte";
 
   export let model: NotebookCommModel;
 
@@ -24,7 +26,8 @@
 
   function deselectEverything() {
     instanceName = null;
-    chatInstance = null;
+    // chatInstance = null;
+    deselectChatInstance();
     newForm = null;
   }
 
@@ -32,11 +35,27 @@
     model.refresh();
   }
 
+  function deselectChatInstance(){
+    if(chatInstance != null)
+      $wizardOpenChatInstance[chatInstance.chatName] -= 1; 
+    chatInstance = null;
+  }
+
+  onDestroy(()=>{
+    deselectChatInstance();
+  });
+
   function selectExisting(key: string) {
     mode = "existing:" + key;
     instanceName = key;
+    deselectChatInstance();
     chatInstance = $chatInstances[key]
     if (chatInstance) {
+      if($wizardOpenChatInstance[chatInstance.chatName] == undefined)
+      {
+        $wizardOpenChatInstance[chatInstance.chatName] = 0;
+      }
+      $wizardOpenChatInstance[chatInstance.chatName] += 1;
       chatInstance.refresh();
       $chatInstance = $chatInstance;
     }
@@ -49,7 +68,8 @@
       newForm = null;
     } else if (mode.startsWith("new:")) {
       instanceName = null;
-      chatInstance = null;
+      // chatInstance = null;
+      deselectChatInstance();
       newForm = $chatLoaders[mode.substring("new:".length)] || {};
       for (const [key, [type_, config]] of Object.entries(newForm)) {
         formValues[key] = {type: type_, value: config.value};
@@ -136,10 +156,10 @@
   {#if chatInstance}
     <Header {chatInstance} title="{chatInstance.mode} - {model.name }" showConfigs={false}/>
     <div class="chatContainer">
-      <Chat {chatInstance}/>
+      <Chat {chatInstance} isExtraChat={true}/>
     </div>
     <div class="wizardPanelText">
-      <AutoCompleteInput {chatInstance}/>
+      <AutoCompleteInput {chatInstance} isExtraChat={true}/>
     </div>
   {/if}
 </div>

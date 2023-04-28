@@ -7,38 +7,26 @@ from ..comm.message import MessageContext
 if TYPE_CHECKING:
     from ..comm.chat_instance import ChatInstance
 
+import traceback
+import openai
+import json
 
 class ChatGPTBot:
     """GPT bot that connects to Open AI"""
 
-    try:
-        import json
-
-        import os
-
-        prompt_config = ""
-
-        # Load Credentials
-        with open("newtonchat\\bots\\chatgpt_config.json", "r") as f:
-            prompt_config = json.load(f)
-
-        base_prompt = prompt_config["base_prompt"] + prompt_config["rules_to_be_followed"]
-
-    except Exception as e:
-        base_prompt = ""
-
     def __init__(self):
-        self.prompt = self.base_prompt
+        self.prompt = ""
         self.api_key = ""
         self.model_config = {}
-        self.conversation_context = [
-            {"role": "system", "content": self.prompt}]
+        self.rules_to_be_followed = ""
+        self.conversation_context = []
 
     @classmethod
     def config(cls):
         """Defines configuration inputs for bot"""
         return {
-            "prompt": ('textarea', {"value": cls.base_prompt, "rows": 6}),
+            "prompt": ('textarea', {"value": "", "rows": 6}),
+            "rules_to_be_followed": ('textarea', {"value": "", "rows": 6}),
             "model": ('datalist', {"value": "gpt-3.5-turbo-0301", "options": [
                 'gpt-3.5-turbo-0301',
                 'gpt-3.5-turbo',
@@ -60,9 +48,9 @@ class ChatGPTBot:
     def start(self, instance: ChatInstance, data: dict):
         """Initializes bot"""
         try:
-            import openai
             original = self.config()
             self.prompt = data.get("prompt", self.prompt)
+            self.rules_to_be_followed = data.get("rules_to_be_followed", self.rules_to_be_followed)
             self.api_key = data.get("api_key", "").strip()
             self._set_config(original, data, 'model', str)
             self._set_config(original, data, 'temperature', float)
@@ -73,21 +61,21 @@ class ChatGPTBot:
             self._set_config(original, data, 'n', int)
 
             instance.config["enable_autocomplete"] = False
-            
-            if self.base_prompt != self.prompt:
-                self.conversation_context = []
-                self.attach_prompt_message("system", self.prompt)
 
-            response_messages= self.get_response_messages()
+            self.conversation_context = []
+            self.attach_prompt_message("system", self.prompt)
+
+            response_messages = self.get_response_messages()
 
             for message_content in response_messages:
                 instance.history.append(MessageContext.create_message(
                     (message_content),
-                    "bot"
+                    "bot",
+                    isGPTMessage=True
                 ))
 
         except Exception:
-            print("Exception")
+            instance.reply_message(MessageContext.create_message(traceback.format_exc(), "error"))
 
     def refresh(self, instance: ChatInstance):
         """Refresh chatbot"""
@@ -99,17 +87,20 @@ class ChatGPTBot:
         # pylint: disable=unused-argument
 
         try:
-            self.attach_prompt_message("user", context.text)
+            if context.getattr('isGPTMessage'):
+                self.attach_prompt_message(
+                    "assistant", self.get_trimmed_message(context.text))
 
-            response_messages = self.get_response_messages()
+                context.instance.config['conversation_context_updated'] = self.conversation_context
 
-            for message_content in response_messages:
-                context.instance.history.append(MessageContext.create_message(
-                    (message_content),
-                    "bot"
-                ))
+            elif context.getattr('isUserPrompt'):
+                conv_context = self.attach_prompt_message(
+                    "user",  self.get_trimmed_message(context.text))
 
-                context.reply(message_content)
+                response_messages = self.get_response_messages()
+
+                for message_content in response_messages:
+                    context.reply(message_content, isGPTMessage=True)
 
         except Exception:
             import traceback
@@ -132,6 +123,8 @@ class ChatGPTBot:
         return {
             "config": self.model_config,
             "prompt": self.prompt,
+            "rules_to_be_followed": self.rules_to_be_followed,
+            "conversation_context": self.conversation_context,
             "!form": {
                 "api_key": ("file", {"value": ""})
             }
@@ -142,15 +135,17 @@ class ChatGPTBot:
         if "config" in data:
             self.model_config = {**self.model_config, **data["config"]}
         self.prompt = data.get("prompt", self.prompt)
+        self.rules_to_be_followed = data.get("rules_to_be_followed", self.rules_to_be_followed)
+        self.conversation_context = data.get("conversation_context", self.conversation_context)
         if form := data.get("!form", None):
             self.api_key = form.get("api_key", "").strip()
 
-    def attach_prompt_message(self, role, content):
-        if role =="user":
-            rules = self.prompt_config["rules_to_be_followed"]
 
+    def attach_prompt_message(self, role, content):
+        if role == "user" and self.rules_to_be_followed:
+            rules = self.rules_to_be_followed
             content = f"{content} \\n {rules}"
-                
+
         self.conversation_context.append(
             {
                 "role": role,
@@ -158,12 +153,14 @@ class ChatGPTBot:
             }
         )
 
+        return self.conversation_context
+
+    def get_trimmed_message(self, message):
+        return message.split('####metadata#:')[0].replace('####markdown#:\n', '')
+
     def get_response_messages(self):
-        # global total_tokens_used
-        import openai
-        import json
         openai.api_key = self.api_key
-        
+
         response = openai.ChatCompletion.create(
             messages=self.conversation_context,
             **self.model_config
@@ -175,7 +172,6 @@ class ChatGPTBot:
         response_messages = []
 
         total_tokens_used = response["usage"]["total_tokens"]
-
 
         if total_tokens_used > 3000:
             self.conversation_context.pop()

@@ -70,6 +70,7 @@ class MessageContext:
         type_: str,
         reply: str | None = None,
         display: MessageDisplay = MessageDisplay.DEFAULT,
+        isGPTMessage: bool | None = None
     ) -> IChatMessage:
         """Creates IChatMessage"""
         return {
@@ -87,6 +88,7 @@ class MessageContext:
                 "otherreason": "",
             },
             "loading": False,
+            "isGPTMessage": isGPTMessage
         }
 
     @property
@@ -94,13 +96,17 @@ class MessageContext:
         """Returns original message text"""
         return self.original_message['text']
 
-    def reply(self, message: str, type_: str="bot", checkpoint: StateDefinition | None = None):
+    def reply(self, message: str, 
+                type_: str="bot", 
+                checkpoint: StateDefinition | None = None, 
+                isGPTMessage: bool | None = None):
         """Reply indicating the reply_to field"""
         message = self.create_message(
             message,
             type_,
             self.original_message['id'],
-            self.original_message['kernelDisplay']
+            self.original_message['kernelDisplay'],
+            isGPTMessage
         )
         if checkpoint is not None:
             self.instance.checkpoints[message['id']] = checkpoint
@@ -129,3 +135,9 @@ class MessageContext:
         if text is not None:
             reply_text = text + '\n' + reply_text
         self.reply(reply_text, type_, checkpoint=checkpoint)
+    
+    def getattr(self, attr_name):
+        if attr_name in self.original_message:
+            return self.original_message[attr_name]
+        
+        return None

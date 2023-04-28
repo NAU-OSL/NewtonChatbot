@@ -1,6 +1,6 @@
 import { get } from "svelte/store";
 import type { IChatInstance } from "../chatinstance";
-import { wizardPreviewMessage, wizardValue } from "../stores";
+import { wizardOpenChatInstance, wizardPreviewMessage, wizardValue } from "../stores";
 import { KernelProcess, MessageDisplay, type IChatMessage, type IMessagePart, type IMessagePartType, type IMessageType, type IOptionItem, type ITargetDefinition } from "./chatbotInterfaces";
 
 const TYPE_DEFS: { [key: string]: IMessagePartType } = {
@@ -216,6 +216,40 @@ async function cloneMessageWithMetadata(chatInstance: IChatInstance, message: IC
 export async function sendMessageToBuild(chatInstance: IChatInstance, message: IChatMessage, preview: boolean) {
   let newMessage = await cloneMessageWithMetadata(chatInstance, message, preview);
   wizardPreviewMessage.set([...get(wizardPreviewMessage), newMessage]);
+}
+
+export async function selectChatGPTResponse(chatInstance: IChatInstance, message: IChatMessage, preview: boolean) {
+  let newMessage = await cloneMessageWithMetadata(chatInstance, message, preview);
+  newMessage= {
+    ...newMessage,
+    type:'bot',
+    isGPTMessage : true,
+    ...messageTarget('bot'),
+  };
+  chatInstance.addNew(newMessage);
+}
+
+export async function sendChatGPTRequest(chatInstance: IChatInstance, message: IChatMessage, preview: boolean) {
+  
+  for(const [key,count] of Object.entries(get(wizardOpenChatInstance)))
+  {
+    if(count<=0)
+    {
+      continue;
+    }
+    
+    const newchatInstance = get(chatInstance.model.chatInstances)[key];
+
+    let newMessage = await cloneMessageWithMetadata(newchatInstance, message, preview);
+    newMessage= {
+      ...newMessage,
+      type:'user',
+      isUserPrompt : true,
+      ...messageTarget('bot'),
+    };
+    
+    newchatInstance.addNew(newMessage);
+  }
 }
 
 export async function sendMessageToUser(chatInstance: IChatInstance, message: IChatMessage, preview: boolean) {

@@ -13,6 +13,7 @@
   export let minCharactersToSearch = 1;
 
   export let chatInstance: IChatInstance;
+  export let isExtraChat: boolean = false;
 
   let textarea: HTMLElement;
   let items: IAutoCompleteItem[] = [];
@@ -261,6 +262,7 @@
   {alternativeEnter}
   {alternativeInput}
   {clear}
+  {isExtraChat}
 >
   <label slot="before">
     {#if $enableAutoComplete}

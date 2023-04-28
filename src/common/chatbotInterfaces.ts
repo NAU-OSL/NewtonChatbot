@@ -63,6 +63,8 @@ export interface IChatMessage extends ITargetDefinition {
   loading: boolean;
 
   new?: boolean;
+  isUserPrompt?: boolean;
+  isGPTMessage?: boolean;
 }
 
 export interface IAutoCompleteItem {
