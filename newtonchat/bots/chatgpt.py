@@ -11,7 +11,21 @@ if TYPE_CHECKING:
 class ChatGPTBot:
     """GPT bot that connects to Open AI"""
 
-    base_prompt = "Pretend that you are a python tutor named - 'Newton' and your goal is to teach programming to the students using pseduo codes. Respond with your name and also that you are ready to assist students to learn programming. Explain the concept by concept and take the confirmation from the user to move on to the next topic"
+    try:
+        import json
+
+        import os
+
+        prompt_config = ""
+
+        # Load Credentials
+        with open("newtonchat\\bots\\chatgpt_config.json", "r") as f:
+            prompt_config = json.load(f)
+
+        base_prompt = prompt_config["base_prompt"] + prompt_config["rules_to_be_followed"]
+
+    except Exception as e:
+        base_prompt = ""
 
     def __init__(self):
         self.prompt = self.base_prompt
@@ -132,6 +146,11 @@ class ChatGPTBot:
             self.api_key = form.get("api_key", "").strip()
 
     def attach_prompt_message(self, role, content):
+        if role =="user":
+            rules = self.prompt_config["rules_to_be_followed"]
+
+            content = f"{content} \\n {rules}"
+                
         self.conversation_context.append(
             {
                 "role": role,
@@ -144,7 +163,7 @@ class ChatGPTBot:
         import openai
         import json
         openai.api_key = self.api_key
-
+        
         response = openai.ChatCompletion.create(
             messages=self.conversation_context,
             **self.model_config
@@ -156,6 +175,10 @@ class ChatGPTBot:
         response_messages = []
 
         total_tokens_used = response["usage"]["total_tokens"]
+
+
+        if total_tokens_used > 3000:
+            self.conversation_context.pop()
 
         meta_json = json.dumps({"tokens": total_tokens_used})
 

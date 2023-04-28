@@ -175,7 +175,7 @@
   }
 
   .chatContainer{
-    height: 85%;
+    height: 75%;
   }
 
   .wizardPanelText {
