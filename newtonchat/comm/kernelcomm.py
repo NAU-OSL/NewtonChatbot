@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import traceback
+import sys
+import json
 from ipykernel.comm import Comm
 
 from ..loader import LOADERS
@@ -16,16 +18,17 @@ class KernelComm:
         self.shell = shell
         self.name = "newton.comm"
         self.comm = None
-
         self.chat_instances = {
             "base": ChatInstance(self, "base", mode).start_bot({})
         }
         self.dead_instances = []
 
-    def register(self):
+    def register(self, instances=None):
         """Registers comm"""
         self.comm = Comm(self.name)
         self.comm.on_msg(self.receive)
+        if instances:
+            self.load_instances(instances)
         self.sync_meta()
         for instance in self.chat_instances.values():
             instance.sync_chat("init")
@@ -63,16 +66,20 @@ class KernelComm:
         """Loads instances and syncs chat"""
         base_mode = self.chat_instances["base"].mode
         self.chat_instances = {}
+        self.dead_instances = data.get("dead_instances", [])
         for name, instance in data.get("instances", {}).items():
-            self.chat_instances[name] = ChatInstance(self, name, instance["mode"])
-            self.chat_instances[name].load(instance)
-            self.chat_instances[name].refresh()
+            try:
+                self.chat_instances[name] = ChatInstance(self, name, instance["mode"])
+                self.chat_instances[name].load(instance)
+            except Exception:
+                self.dead_instances.append(instance)
 
         if "base" not in self.chat_instances:
             self.chat_instances["base"] = ChatInstance(self, "base", base_mode).start_bot({})
 
-        self.dead_instances = data.get("dead_instances", [])
         self.sync_meta()
+        for name, instance in self.chat_instances.items():
+            instance.refresh()
 
     def receive(self, msg):
         """Receives requests"""

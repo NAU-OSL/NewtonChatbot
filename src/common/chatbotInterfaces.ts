@@ -12,7 +12,7 @@ export type Subset<K> = {
 
 export interface IKernelMatcher {
   language: string | null;
-  initScript: string | null;
+  initScript: ((instances: boolean) => string) | null;
   evalue: string | null;
 }
 
@@ -76,6 +76,7 @@ export interface IAutoCompleteItem {
 
 export interface IServerConfig {
   restrict: string[];
+  instances: boolean;
 }
 
 export type IMessagePartType =

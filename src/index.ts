@@ -10,7 +10,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { MainChat } from './mainchat';
 import type { IServerConfig } from './common/chatbotInterfaces';
 import { requestAPI } from './server';
-import { restrictNotebooks, errorHandler, jupyterapp, jupyterSanitizer, jupyterRenderMime } from './stores';
+import { restrictNotebooks, errorHandler, jupyterapp, jupyterSanitizer, jupyterRenderMime, instancesConfig } from './stores';
 
 
 function startPlugin(
@@ -23,8 +23,10 @@ function startPlugin(
   config: IServerConfig
 ) {
   try {
-    console.log("Restrict: %s", config.restrict)
+    console.log("Config", config)
+
     restrictNotebooks.set(config.restrict);
+    instancesConfig.set(config.instances);
     jupyterapp.set(app);
     jupyterSanitizer.set(sanitizer);
     jupyterRenderMime.set(rendermime);
@@ -81,7 +83,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       console.error(
         `The newton server extension appears to be missing.\n${reason}\nStarting with default config`
       );
-      startPlugin(app, labShell, restorer, notebookTracker, sanitizer, rendermime, { restrict: [] });
+      console.log(reason)
+      errorHandler.report(reason, 'server handler', undefined);
+      startPlugin(app, labShell, restorer, notebookTracker, sanitizer, rendermime, { restrict: [], instances: false });
     });
   }
   

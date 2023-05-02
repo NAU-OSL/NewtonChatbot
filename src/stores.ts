@@ -58,7 +58,7 @@ function createErrorHandler() {
     };
     current.push(
       `${date} - ${func}:\n  ${error.toString()}\n  ${JSON.stringify(
-        params.toString()
+        (params || "").toString()
       )}`
     );
     set(current);
@@ -164,6 +164,8 @@ function createPanelWidget() {
 // ~~~~~~~~~~~ Stores ~~~~~~~~~~~~~~~~
 export const replying: Writable<string | null> = writable(null);
 export const restrictNotebooks: Writable<string[]> = writable([]);
+export const instancesConfig: Writable<boolean> = writable(false);
+
 export const jupyterapp: Writable<JupyterFrontEnd | null> = writable(null);
 export const jupyterSanitizer: Writable<ISanitizer | null> = writable(null);
 export const jupyterRenderMime: Writable<IRenderMimeRegistry | null> = writable(null);

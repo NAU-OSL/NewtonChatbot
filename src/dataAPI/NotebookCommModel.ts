@@ -8,6 +8,7 @@ import {
   errorHandler,
   kernelStatus,
   wizardMode,
+  instancesConfig,
 } from '../stores';
 import { NotebookActions, type NotebookPanel } from '@jupyterlab/notebook';
 import type {
@@ -303,7 +304,7 @@ export class NotebookCommModel {
     ) {
       this._language = {
         language: 'python',
-        initScript: 'import newtonchat.comm; newtonchat.comm.init()',
+        initScript: (instances) => `import newtonchat.comm; newtonchat.comm.init(${instances? 'True' : 'False'})`,
         evalue: "No module named 'newtonchat.comm'"
       };
     }
@@ -316,7 +317,7 @@ export class NotebookCommModel {
     }
     const language = this._language;
     const content: KernelMessage.IExecuteRequestMsg['content'] = {
-      code: code,
+      code: code(get(instancesConfig)),
       stop_on_error: false,
       store_history: false,
       silent: true
@@ -379,9 +380,10 @@ export class NotebookCommModel {
     try {
       const operation = msg.content.data.operation;
       const instance = msg.content.data.instance as string;
-
+      console.log(operation, instance)
       if (instance === "<meta>") {
         if (operation === 'sync-meta') {
+          console.log('aaaa', msg.content.data)
           this.chatLoaders.set(msg.content.data.loaders as unknown as { [id: string]: ILoaderForm });
           const instances = msg.content.data.instances as unknown as { [id: string]: string };
           this._loadInstances(instances);

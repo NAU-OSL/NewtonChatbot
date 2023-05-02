@@ -37,7 +37,6 @@ class DummyBot:
         """Processes user messages"""
         # pylint: disable=unused-argument
         context.reply(self.format_str.format(context.text))
-        return self
 
     def process_autocomplete(self, instance: ChatInstance, request_id: int, query: str):
         """Processes user autocomplete query"""

@@ -1,5 +1,10 @@
 """Defines gpt bot"""
 from __future__ import annotations
+
+import traceback
+import json
+import openai
+
 from typing import TYPE_CHECKING
 
 from ..comm.message import MessageContext
@@ -7,9 +12,6 @@ from ..comm.message import MessageContext
 if TYPE_CHECKING:
     from ..comm.chat_instance import ChatInstance
 
-import traceback
-import openai
-import json
 
 class ChatGPTBot:
     """GPT bot that connects to Open AI"""
@@ -103,10 +105,7 @@ class ChatGPTBot:
                     context.reply(message_content, isGPTMessage=True)
 
         except Exception:
-            import traceback
             context.reply(traceback.format_exc(), "error")
-
-        return self
 
     def process_autocomplete(self, instance: ChatInstance, request_id: int, query: str):
         """Processes user autocomplete query"""
