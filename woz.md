@@ -17,7 +17,7 @@ Use the Share button to have the notebook in two browsers. Activate Newton wizar
 
 ## Gitpod
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/EPICLab/DSChatbot)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/NAU-OSL/NewtonChatbot)
 
 To start the notebook, run
 ```
