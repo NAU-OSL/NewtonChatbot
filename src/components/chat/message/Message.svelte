@@ -56,6 +56,7 @@
         commands.addCommand('send-user', {
           label: 'Send to user',
           execute: async () => {
+
             await sendMessageToUser(chatInstance, message, preview);
           }
         });

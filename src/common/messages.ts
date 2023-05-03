@@ -210,6 +210,7 @@ async function cloneMessageWithMetadata(chatInstance: IChatInstance, message: IC
   if (!preview) {
     newMessage.text = await createMetadata(chatInstance, message);
   }
+  newMessage.reply = get(chatInstance.replying)
   return newMessage;
 }
 
@@ -253,8 +254,13 @@ export async function sendChatGPTRequest(chatInstance: IChatInstance, message: I
 }
 
 export async function sendMessageToUser(chatInstance: IChatInstance, message: IChatMessage, preview: boolean) {
-  let newMessage = await cloneMessageWithMetadata(chatInstance, message, preview);
-  chatInstance.addNew(newMessage);
+  const allInstances = get(chatInstance.model.chatInstances);
+  let instance = allInstances["base"];
+  if (instance === undefined) {
+    instance = chatInstance;
+  }
+  let newMessage = await cloneMessageWithMetadata(instance, message, preview);
+  instance.addNew(newMessage);
 }
 
 

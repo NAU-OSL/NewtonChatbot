@@ -64,6 +64,9 @@ export function createChatInstance(model: NotebookCommModel, chatName: string, m
     }
   
     function addNew(newMessage: IChatMessage) {
+      if (get(wizardMode) && get(config.enableAutoLoading) && get(replying) === newMessage.reply && (newMessage.reply != null)) {
+        removeLoading(newMessage.reply);
+      }
       model.sendMessageKernel(chatName, newMessage);
     }
   

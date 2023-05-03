@@ -43,7 +43,6 @@
 
   export let chatInstance: IChatInstance;
 
-  let { enableAutoLoading } = chatInstance.config;
   let { replying } = chatInstance;
 
   let uniqueNameWithingComponent = crypto.randomUUID();
@@ -121,9 +120,6 @@
       chatInstance.addNew(message)
     })
     $wizardPreviewMessage = []
-    if ($enableAutoLoading && $replying !== null) {
-      chatInstance.removeLoading($replying);
-    }
     await tick();
   }
 
