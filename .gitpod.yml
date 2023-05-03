@@ -13,7 +13,7 @@ tasks:
       conda activate newton &&
       pip install -e . &&
       jupyter labextension develop . --overwrite &&
-      jupyter server extension enable newtonchat &&
+      jupyter serverextension enable newtonchat &&
       jlpm run build
     command: |
       conda init
