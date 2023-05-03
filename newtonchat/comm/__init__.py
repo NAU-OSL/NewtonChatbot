@@ -12,7 +12,8 @@ def apply_arg(data, arg, value):
         step = args[0]
         if step.startswith('__'):
             step = int(step[2:])
-        apply_arg(data[step], args[1], value)
+        new_data = data[step] if step else data
+        apply_arg(new_data, args[1], value)
     else:
         data[arg] = value
 
