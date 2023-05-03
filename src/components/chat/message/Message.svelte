@@ -231,7 +231,7 @@
         class="inner"
       >
         <div class="main">
-          <div class="{message.isGPTMessage || message.isUserPrompt? "selected" : "" }">
+          <div class:gptlog={(message.isGPTMessage || message.isUserPrompt) && ($wizardMode)}>
             {#if reply}
             <Reply {chatInstance} {reply} {chat} {scrollBottom}/>
             {/if}
@@ -314,7 +314,7 @@
     padding: 0.4em;
   }
 
-  .main .selected {
+  .main .gptlog {
     border: 2px solid green;
   }
 </style>
