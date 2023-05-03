@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IChatMessage, IMessagePart } from "../../../common/chatbotInterfaces";
   import { splitUnifiedMessage } from "../../../common/messages";
   import Code from "./message_parts/Code.svelte";

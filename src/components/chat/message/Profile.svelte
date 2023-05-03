@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import Person from "../../icons/person.svelte";
   import Robot from "../../icons/robot.svelte";
 

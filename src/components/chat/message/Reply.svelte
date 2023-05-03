@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IChatInstance } from "../../../chatinstance";
   import type { IChatMessage } from "../../../common/chatbotInterfaces";
   import MessageParts from "./MessageParts.svelte";
@@ -40,6 +40,7 @@
   title="Click to go to message"
   role="button"
   aria-pressed="false"
+  tabindex=0
   on:click={scroll}
   on:keypress={scroll}
 >

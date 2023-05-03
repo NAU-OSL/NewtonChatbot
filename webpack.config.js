@@ -20,6 +20,13 @@ const rules = [
     }
   },
   {
+    // required to prevent errors from Svelte on Webpack 5+, omit on Webpack 4
+    test: /node_modules\/svelte\/.*\.mjs$/,
+    resolve: {
+      fullySpecified: false
+    }
+  },
+  {
     test: /\.svg$/,
     loader: 'svg-url-loader'
   }
@@ -29,6 +36,9 @@ const rules = [
 const externals = Object.keys(package.jupyterlab.sharedPackages);
 
 const resolve = {
+  alias: {
+    svelte: path.resolve('node_modules', 'svelte')
+  },
   extensions: [
     '.webpack.js',
     '.web.js',
@@ -38,7 +48,8 @@ const resolve = {
     '.css',
     '.svg'
   ],
-  mainFields: ['svelte', 'browser', 'module', 'main']
+  mainFields: ['svelte', 'browser', 'module', 'main'],
+  conditionNames: ['svelte']
 };
 
 module.exports = [

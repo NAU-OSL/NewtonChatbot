@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import { onMount, tick } from 'svelte';
   import Below from "../icons/below.svelte";
   import Bottom from "../icons/bottom.svelte";

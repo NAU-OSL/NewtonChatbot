@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
     export let group: any;
     export let name: string;
     export let value: any;

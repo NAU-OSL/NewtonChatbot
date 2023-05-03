@@ -1,5 +1,5 @@
 
-<script type="ts">
+<script lang="ts">
   import { beforeUpdate, afterUpdate } from 'svelte';
   import type { IChatInstance } from '../../chatinstance';
   import Message from './message/Message.svelte';

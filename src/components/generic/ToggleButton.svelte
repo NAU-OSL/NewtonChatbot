@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   export let checked: boolean = false;
   export let title: string = "";
 </script>

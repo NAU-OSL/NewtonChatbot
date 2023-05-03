@@ -1,6 +1,6 @@
 
 
-<script type="ts">
+<script lang="ts">
   import { MessageDisplay, type IChatMessage, type IMessageType } from '../../../common/chatbotInterfaces';
   import { wizardMode, replying, wizardPreviewMessage } from '../../../stores';
   import { ContextMenu } from '@lumino/widgets';

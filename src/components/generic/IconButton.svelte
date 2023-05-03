@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   export let title: string;
   export let selected: boolean | null = null;
   export let hide: boolean = false;

@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IChatInstance } from "../../../../chatinstance";
   import type { IChatMessage, IMessagePart } from "../../../../common/chatbotInterfaces";
   import { messageTarget, type IFormElementItem } from "../../../../common/messages";

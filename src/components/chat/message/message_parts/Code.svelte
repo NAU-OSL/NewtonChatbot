@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IMessagePart } from "../../../../common/chatbotInterfaces";
   import CodeWidget from '../../../generic/CodeWidget.svelte';
 

@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IChatInstance } from "../../../../chatinstance";
   import type { IChatMessage, IMessagePart } from "../../../../common/chatbotInterfaces";
   import Options from "./Options.svelte";
@@ -10,6 +10,6 @@
   export let message: IChatMessage;
 </script>
 
-<Text messagePart={{type: 'text', text: 'Suggestions (clickable):'}}/>
+<Text messagePart={{type: 'text', text: 'Suggestions (clickable):', source: message.text}}/>
 <Options {chatInstance} {messagePart} {message}/>
-<TextInput {chatInstance} messagePart={{type: 'input', text:'Ask a different question'}} {message}/>
+<TextInput {chatInstance} messagePart={{type: 'input', text:'Ask a different question', source: message.text}} {message}/>

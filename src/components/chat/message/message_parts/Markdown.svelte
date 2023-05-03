@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IMessagePart } from "../../../../common/chatbotInterfaces";
   import { marked } from 'marked';
   import { onMount } from "svelte";

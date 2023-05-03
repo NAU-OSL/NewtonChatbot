@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IFormElementItem } from "../../../../../common/messages";
 
   export let element: IFormElementItem;

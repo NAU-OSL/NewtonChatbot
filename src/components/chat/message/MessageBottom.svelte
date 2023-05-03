@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IChatInstance } from "../../../chatinstance";
   import type { IChatMessage } from "../../../common/chatbotInterfaces";
   import { sendMessageToBuild, sendMessageToWizardInput, sendMessageToUser, selectChatGPTResponse, sendChatGPTRequest } from "../../../common/messages";

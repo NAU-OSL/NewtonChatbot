@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IChatMessage } from "../../../common/chatbotInterfaces";
   import { replying, wizardMode } from "../../../stores";
   import Eye from "../../icons/eye.svelte";

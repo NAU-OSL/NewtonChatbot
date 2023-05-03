@@ -1,6 +1,5 @@
 import json
 import sys
-import traceback
 import os
 
 from jupyter_server.base.handlers import APIHandler

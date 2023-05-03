@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import type { IChatInstance } from "../../../../chatinstance";
     import type { IMessagePart } from "../../../../common/chatbotInterfaces";
     import { wizardMode } from "../../../../stores";
