@@ -53,7 +53,7 @@
     {#if $showIndex && $wizardMode}
       <div>{index}</div>
     {/if}
-    <ReplyButtons {message} viewReplied={viewReplied} on:toggleViewReplied />
+    <ReplyButtons {chatInstance} {message} viewReplied={viewReplied} on:toggleViewReplied />
     {#if $wizardMode}
       <IconButton title="To reply" on:click={sendToBuild}><Digging/></IconButton>
       <IconButton title="To input" on:click={sentToInput}><Title/></IconButton>

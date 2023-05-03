@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { IChatMessage, IOptionItem } from "../../common/chatbotInterfaces";
-  import { replying } from "../../stores";
   import { tick } from "svelte";
   import { messageTarget } from "../../common/messages";
   import type { IChatInstance } from "../../chatinstance";
@@ -21,6 +20,7 @@
   export let isExtraChat: boolean = false;
 
   let { enableAutoLoading } = chatInstance.config;
+  let { replying } = chatInstance;
 	
 	$: minHeight = `${1 + minRows * 1.2}em`;
 	$: maxHeight = maxRows ? `${1 + maxRows * 1.2}em` : `auto`;

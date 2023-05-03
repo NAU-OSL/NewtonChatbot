@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { IChatMessage, IMessageType } from "../../common/chatbotInterfaces";
-  import { replying, wizardPreviewMessage, wizardValue } from "../../stores";
+  import { wizardPreviewMessage, wizardValue } from "../../stores";
   import Message from "./message/Message.svelte";
   import { SvelteComponent, tick } from "svelte";
   import { BOT_TARGETS, BOT_TYPES, messageTarget, type IMessageTarget } from "../../common/messages";
@@ -44,6 +44,7 @@
   export let chatInstance: IChatInstance;
 
   let { enableAutoLoading } = chatInstance.config;
+  let { replying } = chatInstance;
 
   let uniqueNameWithingComponent = crypto.randomUUID();
 

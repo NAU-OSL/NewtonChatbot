@@ -2,7 +2,7 @@
 
 <script lang="ts">
   import { MessageDisplay, type IChatMessage, type IMessageType } from '../../../common/chatbotInterfaces';
-  import { wizardMode, replying, wizardPreviewMessage } from '../../../stores';
+  import { wizardMode, wizardPreviewMessage } from '../../../stores';
   import { ContextMenu } from '@lumino/widgets';
   import { CommandRegistry } from '@lumino/commands';
   import { BOT_TARGETS, BOT_TYPES, checkTarget, cloneMessage, messageTarget, sendMessageToBuild, sendMessageToUser, sendMessageToWizardInput } from "../../../common/messages";
@@ -21,7 +21,8 @@
   export let preview: boolean = false;
   export let isExtraChat: boolean = false;
 
-  let {showBuildMessages, showKernelMessages, showReplied, directSendToUser } = chatInstance.config;
+  let { showBuildMessages, showKernelMessages, showReplied, directSendToUser } = chatInstance.config;
+  let { replying } = chatInstance;
 
   let display: boolean = false;
   let reply: IChatMessage | null | undefined = null;

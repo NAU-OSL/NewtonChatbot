@@ -1,13 +1,17 @@
 <script lang="ts">
   import type { IChatMessage } from "../../../common/chatbotInterfaces";
-  import { replying, wizardMode } from "../../../stores";
+  import { wizardMode } from "../../../stores";
   import Eye from "../../icons/eye.svelte";
   import Reply from "../../icons/fa-reply.svelte";
   import { createEventDispatcher } from 'svelte';
   import IconButton from "../../generic/IconButton.svelte";
+  import type { IChatInstance } from "../../../chatinstance";
 
+  export let chatInstance: IChatInstance;
   export let message: IChatMessage;
   export let viewReplied: boolean;
+
+  let { replying } = chatInstance;
 
   const dispatch = createEventDispatcher();
   
@@ -32,7 +36,7 @@
 <div class="buttons">
   {#if message.reply}
     <IconButton 
-      title={viewReplied? "View replied message" : "Hide replied message"} 
+      title={viewReplied? "Hide replied message" : "View replied message"} 
       selected={viewReplied}
       on:click={toggleViewReplied}
     ><Eye/></IconButton>

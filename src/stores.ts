@@ -162,7 +162,6 @@ function createPanelWidget() {
 }
 
 // ~~~~~~~~~~~ Stores ~~~~~~~~~~~~~~~~
-export const replying: Writable<string | null> = writable(null);
 export const restrictNotebooks: Writable<string[]> = writable([]);
 export const instancesConfig: Writable<boolean> = writable(false);
 
