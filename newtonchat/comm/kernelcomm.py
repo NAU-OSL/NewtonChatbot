@@ -1,5 +1,7 @@
 """Define a Comm for the bot"""
 from __future__ import annotations
+import io
+from contextlib import redirect_stdout
 
 import traceback
 import sys
@@ -22,6 +24,7 @@ class KernelComm:
             "base": ChatInstance(self, "base", mode).start_bot({})
         }
         self.dead_instances = []
+        self.sessions_history = []
 
     def register(self, instances=None):
         """Registers comm"""
@@ -53,20 +56,30 @@ class KernelComm:
         instances = {}
         for name, instance in self.chat_instances.items():
             instances[name] = instance.save()
+
+        f = io.StringIO()
+        with redirect_stdout(f):
+            self.shell.run_line_magic("history", "-n")
+        out = f.getvalue()
+
+        history = self.sessions_history + [out]
+
         self.comm.send({
             "operation": "instances",
             "instance": "<meta>",
             "data": {
                 "instances": instances,
-                "!!dead_instances": self.dead_instances
-            }
+                "!!dead_instances": self.dead_instances,
+                "!!sessions_history": history,
+            },
         })
 
     def load_instances(self, data):
         """Loads instances and syncs chat"""
         base_mode = self.chat_instances["base"].mode
         self.chat_instances = {}
-        self.dead_instances = data.get("dead_instances", [])
+        self.dead_instances = data.get("!!dead_instances", [])
+        self.sessions_history = data.get("!!sessions_history", [])
         for name, instance in data.get("instances", {}).items():
             try:
                 self.chat_instances[name] = ChatInstance(self, name, instance["mode"])
