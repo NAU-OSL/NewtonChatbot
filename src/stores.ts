@@ -8,6 +8,7 @@ import { requestAPI } from './server';
 import type { ISanitizer } from '@jupyterlab/apputils';
 import type { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import {SveltePanelView, openPanel } from './components/SveltePanelView';
+import type { DockLayout } from '@lumino/widgets';
 
 function createErrorHandler() {
   let current: string[] = [];
@@ -122,13 +123,13 @@ function createPanelWidget() {
   let store = writable<SveltePanelView | null>(null);
   const { subscribe, set, update } = store;
 
-  function load_panel(content: string, title: string, type: 'url' | 'html' | 'text') {
+  function load_panel(content: string, title: string, type: 'url' | 'html' | 'text', mode: DockLayout.InsertMode) {
     let current = get(store)
     if (!current || !current?.isVisible) {
       if (current) {
         current.dispose();
       }
-      current = openPanel(DocPanel, title, {content, title, type});
+      current = openPanel(DocPanel, title, {content, title, type}, mode);
     } else{
       current.set_props({ content, title, type });
     }
@@ -137,16 +138,16 @@ function createPanelWidget() {
     set(current);
   }
 
-  function load_url(url: string, title="Info") {
-    load_panel(url, title, 'url')
+  function load_url(url: string, title:string="Info", mode: DockLayout.InsertMode="split-right") {
+    load_panel(url, title, 'url', mode)
   }
 
-  function load_html(url: string, title: string) {
-    load_panel(url, title, 'html')
+  function load_html(url: string, title: string, mode: DockLayout.InsertMode="split-right") {
+    load_panel(url, title, 'html', mode)
   }
 
-  function load_text(url: string, title: string) {
-    load_panel(url, title, 'text')
+  function load_text(url: string, title: string, mode: DockLayout.InsertMode="split-right") {
+    load_panel(url, title, 'text', mode)
   }
 
   return {

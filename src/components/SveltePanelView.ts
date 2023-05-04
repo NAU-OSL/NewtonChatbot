@@ -1,4 +1,4 @@
-import { Widget } from '@lumino/widgets';
+import { DockLayout, Widget } from '@lumino/widgets';
 import type { ComponentType, SvelteComponent } from 'svelte';
 import { get } from 'svelte/store';
 import { mainChatIcon } from '../iconimports';
@@ -41,7 +41,8 @@ export class SveltePanelView extends Widget {
 export function openPanel(
   svelteComponent: ComponentType,
   title: string,
-  props: Record<string, any>
+  props: Record<string, any>,
+  mode: DockLayout.InsertMode
 ) {
   let panel = new SveltePanelView(svelteComponent, props);
   panel.id = "NewtonChatPanel-" + crypto.randomUUID();
@@ -51,7 +52,7 @@ export function openPanel(
   panel.title.icon = mainChatIcon.bindprops({ stylesheet: 'mainAreaTab' });
   const app = get(jupyterapp);
   if (app) {
-    app.shell.add(panel, 'main', { mode: 'split-right' })
+    app.shell.add(panel, 'main', { mode })
   }
   return panel;
 }

@@ -28,7 +28,7 @@
   function openExtraChat() {
     const model = $notebookCommModel;
     if (model) {
-      openPanel(ExtraChatPanel, "Extra chat", { model });
+      openPanel(ExtraChatPanel, "Extra chat", { model }, 'split-right');
     }
     
   }
@@ -36,7 +36,7 @@
   function openWizardCell() {
     const model = $notebookCommModel;
     if (model) {
-      openPanel(WizardCellPanel, "Wizard cell", { model });
+      openPanel(WizardCellPanel, "Wizard cell", { model }, 'split-right');
     }
   }
 
