@@ -8,12 +8,14 @@
   import { ContentFactory, ModelFactory } from '../chat/message/cellutils';
   import Above from '../icons/above.svelte';
   import IconButton from './IconButton.svelte';
+  import type { IObservableString } from '@jupyterlab/observables';
 
   export let code: string;
   export let scrollBottom: () => void;
   export let direct: boolean = false;
 
   let tempcode: string | null = null;
+  let tempcellvalue: IObservableString | null = null;
 
 
   let div: HTMLElement;
@@ -36,19 +38,27 @@
     }
   });
 
+  function onLeaveRestore() {
+    if (tempcode !== null && tempcellvalue !== null) {
+      tempcellvalue.text = tempcode;
+      tempcode = null;
+      tempcellvalue = null;
+    }
+  }
+
   function onClickInsertAbove() {
     onLeaveRestore();
     $notebookCommModel?.insertAbove(code as string);
   }
 
   function onEnterInsertAbove() {
-    if (tempcode === null) {
-      const content = $notebookCommModel?._notebook.content;
-      const value = content?.activeCell?.model.value;
-      if (value) {
-        tempcode = value.text;
-        value.text = "# ↑↑↑\n" + value.text;
-      }
+    onLeaveRestore();
+    const content = $notebookCommModel?._notebook.content;
+    const value = content?.activeCell?.model.value;
+    if (value) {
+      tempcellvalue = value;
+      tempcode = value.text;
+      value.text = "# ↑↑↑\n" + value.text;
     }
   }
 
@@ -58,82 +68,68 @@
   }
 
   function onEnterInsertBelow() {
-    if (tempcode === null) {
-      const content = $notebookCommModel?._notebook.content;
-      const value = content?.activeCell?.model.value;
-      if (value) {
-        tempcode = value.text;
-        value.text = value.text + "\n# ↓↓↓";
-      }
+    onLeaveRestore();
+    const content = $notebookCommModel?._notebook.content;
+    const value = content?.activeCell?.model.value;
+    if (value) {
+      tempcellvalue = value;
+      tempcode = value.text;
+      value.text = value.text + "\n# ↓↓↓";
     }
   }
 
   function onClickInsertBottom() {
-    onLeaveRestoreBottom();
+    onLeaveRestore();
     $notebookCommModel?.insertBottom(code as string);
   }
 
   function onEnterInsertBottom() {
-    if (tempcode === null) {
-      const content = $notebookCommModel?._notebook.content;
-      const cell = content?.widgets[content.widgets.length - 1]
-      
-      if (cell && cell.model.value) {
-        const value = cell.model.value;
-        tempcode = value.text;
-        value.text = value.text + "\n# ↓↓↓";
-      }
-    }
-  }
-
-  function onLeaveRestoreBottom() {
-    if (tempcode !== null) {
-      const content = $notebookCommModel?._notebook.content;
-      const cell = content?.widgets[content.widgets.length - 1]
-      if (cell && cell.model.value) {
-        const value = cell.model.value;
-        value.text = tempcode;
-        tempcode = null;
-      }
+    onLeaveRestore();
+    const content = $notebookCommModel?._notebook.content;
+    const cell = content?.widgets[content.widgets.length - 1]
+    
+    if (cell && cell.model.value) {
+      const value = cell.model.value;
+      tempcellvalue = value;
+      tempcode = value.text;
+      value.text = value.text + "\n# ↓↓↓";
     }
   }
 
   function onClickInsertOnCell() {
+    onLeaveRestore();
     const content = $notebookCommModel?._notebook.content;
     const activeCell = content?.activeCell;
     if (activeCell) {
       const value = activeCell?.model.value;
       if (value) {
-        let old = tempcode === null? value.text : tempcode;
-        value.text = old + '\n' + code as string
-        tempcode = null;
+        let old = value.text;
+        if (old.trim() != "") {
+          old += '\n';
+        }
+        value.text = old + code as string
         activeCell.editorWidget.editor.focus();
       }
     }
   }
 
   function onEnterInsertOnCell() {
-    if (tempcode === null) {
-      const content = $notebookCommModel?._notebook.content;
-      const value = content?.activeCell?.model.value;
-      if (value) {
-        tempcode = value.text;
-        value.text = value.text + '\n# ' + code.split('\n').join('\n# ');
+    onLeaveRestore();
+    const content = $notebookCommModel?._notebook.content;
+    const value = content?.activeCell?.model.value;
+    if (value) {
+      tempcellvalue = value;
+      tempcode = value.text;
+      let old = value.text;
+      if (old.trim() != "") {
+        old += '\n# ';
+      } else {
+        old += '# ';
       }
+      value.text = old + code.split('\n').join('\n# ');
     }
   }
-
-  function onLeaveRestore() {
-    if (tempcode !== null) {
-      const content = $notebookCommModel?._notebook.content;
-      const value = content?.activeCell?.model.value;
-      if (value) {
-        value.text = tempcode;
-        tempcode = null;
-      }
-    }
-  }
-
+  
   function onClickCopy() {
     navigator.clipboard.writeText(code as string);
   }
@@ -160,7 +156,7 @@
       <IconButton
         on:click={onClickInsertBottom}
         on:mouseenter={onEnterInsertBottom}
-        on:mouseleave={onLeaveRestoreBottom}
+        on:mouseleave={onLeaveRestore}
         title="Insert Cell at the Bottom"><Bottom/></IconButton>
       
       <IconButton
