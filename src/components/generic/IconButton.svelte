@@ -11,6 +11,8 @@
   class:selected={selected}
   class:hide={hide}
   on:click
+  on:mouseenter
+  on:mouseleave
   style="--selected-color: {selectedColor}; --default-color: {defaultColor};"
 ><slot/></button>
 

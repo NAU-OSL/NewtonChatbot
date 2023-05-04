@@ -223,7 +223,7 @@ export async function selectChatGPTResponse(chatInstance: IChatInstance, message
   let newMessage = await cloneMessageWithMetadata(chatInstance, message, preview);
   newMessage= {
     ...newMessage,
-    type:'bot',
+    type: 'bot',
     isGPTMessage : true,
     ...messageTarget('bot'),
   };
