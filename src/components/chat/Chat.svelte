@@ -35,8 +35,6 @@
 
 <div bind:this={div}>
   {#each $chatInstance as message, index (message.id)}
-    {#if !isExtraChat || (message.type == "error" || message.isGPTMessage != undefined || message.isUserPrompt !=undefined) }
-      <Message {chatInstance} {message} chat={div} {scrollBottom} {index} {isExtraChat}/>
-    {/if}
+    <Message {chatInstance} {message} chat={div} {scrollBottom} {index} {isExtraChat}/>
   {/each}
 </div>

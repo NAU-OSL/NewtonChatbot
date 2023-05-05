@@ -13,12 +13,14 @@
     chatInstance = get($notebookCommModel.chatInstances)["base"]
   }
   $: if ($connectionReady && $notebookCommModel) {
+    chatInstance = get($notebookCommModel.chatInstances)["base"]
     name = $notebookCommModel.name;
   }
   $: ({ hasKernel } = $kernelStatus);
 </script>
 
 {#if chatInstance}
+{#key chatInstance}
   {#if $notebookCommModel && ($restrictNotebooks.length === 0 || $restrictNotebooks.includes(name)) }
     <Header {chatInstance} title="Newton - {name}"/>
     <Chat {chatInstance} isExtraChat={false}/>
@@ -35,5 +37,5 @@
       Currently, the chatbot only works on files named {$restrictNotebooks.join(" or ")}.
     {/if}
   {/if}
-
+{/key}
 {/if}
