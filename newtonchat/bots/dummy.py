@@ -23,7 +23,7 @@ class DummyBot:
         """Initializes bot"""
         self.format_str = data.get("format_str", self.format_str)
         instance.history.append(MessageContext.create_message(
-            (f"Hello, I am a dummy bot that repeats messages using the template {self.format_str}"),
+            f"Hello, I am a dummy bot that repeats messages using the template {self.format_str}",
             "bot"
         ))
         instance.config["enable_autocomplete"] = False

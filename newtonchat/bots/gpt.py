@@ -1,8 +1,12 @@
 """Defines gpt bot"""
 from __future__ import annotations
+import traceback
+
 from typing import TYPE_CHECKING
 
-from ..comm.message import MessageContext 
+import openai
+
+from ..comm.message import MessageContext
 
 if TYPE_CHECKING:
     from ..comm.chat_instance import ChatInstance
@@ -20,7 +24,9 @@ class GPTBot:
     def config(cls):
         """Defines configuration inputs for bot"""
         return {
-            "prompt": ('textarea', {"value": "You are a chatbot that can help programming.\n\nQ: {}\nA:", "rows": 6}),
+            "prompt": ('textarea', {
+                "value": "You are a chatbot that can help programming.\n\nQ: {}\nA:", "rows": 6
+            }),
             "model": ('datalist', {"value": "text-davinci-003", "options": [
                 'babbage',
                 'davinci',
@@ -100,7 +106,7 @@ class GPTBot:
             "best_of": ('range', {"value": 1, "min": 1, "max": 20, "step": 1}),
             "api_key": ("file", {"value": ""}),
         }
-    
+
     def _set_config(self, original, data, key, convert=str):
         """Sets config"""
         self.model_config[key] = convert(data.get(key, original[key]))
@@ -119,7 +125,7 @@ class GPTBot:
         self._set_config(original, data, 'best_of', int)
 
         instance.history.append(MessageContext.create_message(
-            ("I am a GPT bot"),
+            "I am a GPT bot",
             "bot"
         ))
         instance.config["enable_autocomplete"] = False
@@ -132,7 +138,8 @@ class GPTBot:
     def process_message(self, context: MessageContext) -> None:
         """Processes user messages"""
         # pylint: disable=unused-argument
-        import openai
+        # pylint: disable=broad-exception-raised
+        # pylint: disable=broad-exception-caught
         openai.api_key = self.api_key
         response = openai.Completion.create(
           prompt=self.prompt.format(context.text),
@@ -146,10 +153,7 @@ class GPTBot:
                 raise Exception("GPT API returned no text")
             context.reply(text.strip())
         except Exception:
-            import traceback
             context.reply(traceback.format_exc(), "error")
-    
-        return self
 
     def process_autocomplete(self, instance: ChatInstance, request_id: int, query: str):
         """Processes user autocomplete query"""

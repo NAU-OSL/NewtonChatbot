@@ -69,7 +69,7 @@ class NewtonBot:
     def config(cls):
         """Defines configuration inputs for bot"""
         return {}
-    
+
     def start(self, instance: ChatInstance, data: dict):
         """Initializes bot"""
         # pylint: disable=unused-argument
@@ -159,7 +159,7 @@ class NewtonBot:
                               checkpoint=state_checkpoint(self.state))
                 return
 
-            reply = context.original_message.get('reply', '')
+            reply = context.original_message.get('reply', '') or ''
             history = context.instance.history
             if check_state := context.instance.checkpoints.get(reply, None):
                 self.set_state(context, check_state)

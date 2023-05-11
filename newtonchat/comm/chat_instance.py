@@ -3,13 +3,17 @@ from __future__ import annotations
 from collections import defaultdict
 import traceback
 import weakref
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
+
 from ..loader import LOADERS
 from .message import KernelProcess, MessageContext
 
 if TYPE_CHECKING:
+    from ..bots.newton.states.state import StateDefinition
     from .kernelcomm import KernelComm
     from .message import IChatMessage
+else:
+    IChatMessage = None
 
 
 def apply_partial(original: dict, update: dict):
@@ -28,12 +32,12 @@ class ChatInstance:
         self.mode = mode
         self.comm_ref = weakref.ref(comm)
         self.bot_loader = LOADERS[mode](comm)
-        self.memory = defaultdict(lambda: None)
+        self.memory: dict[str, Any] = defaultdict(lambda: None)
 
         self.chat_name = chat_name
 
-        self.history = []
-        self.message_map = {}
+        self.history: list[IChatMessage] = []
+        self.message_map: dict[str, IChatMessage] = {}
         self.config = {
             "process_in_kernel": True,
             "enable_autocomplete": True,
@@ -48,8 +52,9 @@ class ChatInstance:
             "show_kernel_messages": True,
             "show_metadata": False,
             "direct_send_to_user": False,
+            "show_extra_messages": False,
         }
-        self.checkpoints = {}
+        self.checkpoints: dict[str, StateDefinition | None] = {}
 
     @property
     def bot(self):
@@ -76,12 +81,13 @@ class ChatInstance:
         self.bot.refresh(self)
         self.sync_chat("refresh")
 
-    def receive(self, data: dict):
+    def receive(self, data: dict[str, Any]):
         """Processes received requests"""
         try:
-            operation = data["operation"]
+            operation: str = data.get("operation", "")
             if operation == "message":
-                self.receive_message(data.get("message"))
+                message: IChatMessage = cast(IChatMessage, data.get("message"))
+                self.receive_message(message)
             elif operation == "refresh":
                 self.refresh()
             elif operation == "autocomplete-query":
@@ -101,7 +107,7 @@ class ChatInstance:
             elif operation == "sync-message":
                 partial_message = data["message"]
                 message = self.message_map[partial_message["id"]]
-                apply_partial(message, partial_message)
+                apply_partial(cast(dict[Any, Any], message), partial_message)
                 self.send({
                     "operation": "update-message",
                     "message": message,
@@ -116,6 +122,9 @@ class ChatInstance:
 
     def receive_message(self, message: IChatMessage):
         """Receives message from user"""
+        comm_ref = self.comm_ref()
+        if not comm_ref:
+            raise Exception("Missing comm reference")  # pylint: disable=broad-exception-raised
         self.history.append(message)
         self.message_map[message['id']] = message
         self.send({
@@ -129,7 +138,7 @@ class ChatInstance:
         )
 
         if process_message:
-            context = MessageContext(self.comm_ref(), self, message)
+            context = MessageContext(comm_ref, self, message)
             self.bot.process_message(context)
 
         replicate_other_instances = (
@@ -140,7 +149,7 @@ class ChatInstance:
             )
         )
         if replicate_other_instances:
-            for chat_name, instance in self.comm_ref().chat_instances.items():
+            for chat_name, instance in comm_ref.chat_instances.items():
                 if chat_name != "base" and instance.config["process_base_chat_message"]:
                     instance.receive_message(message)
 

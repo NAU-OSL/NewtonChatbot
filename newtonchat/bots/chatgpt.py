@@ -71,9 +71,9 @@ class ChatGPTBot:
 
             for message_content in response_messages:
                 instance.history.append(MessageContext.create_message(
-                    (message_content),
+                    message_content,
                     "bot",
-                    isGPTMessage=True
+                    is_gpt_message=True
                 ))
 
         except Exception:
@@ -102,7 +102,7 @@ class ChatGPTBot:
                 response_messages = self.get_response_messages()
 
                 for message_content in response_messages:
-                    context.reply(message_content, isGPTMessage=True)
+                    context.reply(message_content, is_gpt_message=True)
 
         except Exception:
             context.reply(traceback.format_exc(), "error")

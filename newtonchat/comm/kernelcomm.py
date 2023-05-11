@@ -4,8 +4,6 @@ import io
 from contextlib import redirect_stdout
 
 import traceback
-import sys
-import json
 from ipykernel.comm import Comm
 
 from ..loader import LOADERS
@@ -57,10 +55,10 @@ class KernelComm:
         for name, instance in self.chat_instances.items():
             instances[name] = instance.save()
 
-        f = io.StringIO()
-        with redirect_stdout(f):
+        string_io_file = io.StringIO()
+        with redirect_stdout(string_io_file):
             self.shell.run_line_magic("history", "-n")
-        out = f.getvalue()
+        out = string_io_file.getvalue()
 
         history = self.sessions_history + [out]
 
@@ -84,7 +82,7 @@ class KernelComm:
             try:
                 self.chat_instances[name] = ChatInstance(self, name, instance["mode"])
                 self.chat_instances[name].load(instance)
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 self.dead_instances.append(instance)
 
         if "base" not in self.chat_instances:

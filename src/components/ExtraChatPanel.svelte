@@ -98,8 +98,6 @@
     }
   }
 
-  
-
   chatInstances.subscribe((newValue) => {
     if ((instanceName !== null) && !(instanceName in newValue)) {
       deselectEverything();

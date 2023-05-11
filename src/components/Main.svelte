@@ -20,9 +20,11 @@
 </script>
 
 {#if chatInstance}
-{#key chatInstance}
+
   {#if $notebookCommModel && ($restrictNotebooks.length === 0 || $restrictNotebooks.includes(name)) }
-    <Header {chatInstance} title="Newton - {name}"/>
+    {#key chatInstance}
+      <Header {chatInstance} title="Newton - {name}"/>
+    {/key}
     <Chat {chatInstance} isExtraChat={false}/>
     {#if $hasKernel}
       {#if $wizardMode}
@@ -32,10 +34,12 @@
       {/if}
     {/if}
   {:else}
-    <Header {chatInstance} title="Newton"/>
+    {#key chatInstance}
+      <Header {chatInstance} title="Newton"/>
+    {/key}
     {#if $restrictNotebooks.length !== 0}
       Currently, the chatbot only works on files named {$restrictNotebooks.join(" or ")}.
     {/if}
   {/if}
-{/key}
+
 {/if}

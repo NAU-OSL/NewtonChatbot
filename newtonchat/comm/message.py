@@ -10,7 +10,7 @@ from enum import IntEnum
 
 
 if TYPE_CHECKING:
-    from ..core.states.state import StateDefinition
+    from ..bots.newton.states.state import StateDefinition
     from typing import Sequence, TypedDict
 
     from .kernelcomm import KernelComm
@@ -41,6 +41,9 @@ if TYPE_CHECKING:
 
         feedback: IFeedback
 
+        loading: bool
+        isGPTMessage: bool
+
 
 class MessageDisplay(IntEnum):
     """Represents a message display mode"""
@@ -70,7 +73,7 @@ class MessageContext:
         type_: str,
         reply: str | None = None,
         display: MessageDisplay = MessageDisplay.DEFAULT,
-        isGPTMessage: bool | None = None
+        is_gpt_message: bool = False
     ) -> IChatMessage:
         """Creates IChatMessage"""
         return {
@@ -79,16 +82,16 @@ class MessageContext:
             "type": type_,
             "timestamp": int(datetime.timestamp(datetime.now())*1000),
             "reply": reply,
-            "display": int(display),
-            "kernelProcess": int(KernelProcess.PREVENT),
-            "kernelDisplay": int(MessageDisplay.DEFAULT),
+            "display": display,
+            "kernelProcess": KernelProcess.PREVENT,
+            "kernelDisplay": MessageDisplay.DEFAULT,
             "feedback": {
                 "rate": 0,
                 "reason": "",
                 "otherreason": "",
             },
             "loading": False,
-            "isGPTMessage": isGPTMessage
+            "isGPTMessage": is_gpt_message
         }
 
     @property
@@ -96,17 +99,17 @@ class MessageContext:
         """Returns original message text"""
         return self.original_message['text']
 
-    def reply(self, message: str, 
-                type_: str="bot", 
-                checkpoint: StateDefinition | None = None, 
-                isGPTMessage: bool | None = None):
+    def reply(self, text: str,
+                type_: str="bot",
+                checkpoint: StateDefinition | None = None,
+                is_gpt_message: bool = False):
         """Reply indicating the reply_to field"""
         message = self.create_message(
-            message,
+            text,
             type_,
             self.original_message['id'],
             self.original_message['kernelDisplay'],
-            isGPTMessage
+            is_gpt_message
         )
         if checkpoint is not None:
             self.instance.checkpoints[message['id']] = checkpoint
@@ -135,9 +138,10 @@ class MessageContext:
         if text is not None:
             reply_text = text + '\n' + reply_text
         self.reply(reply_text, type_, checkpoint=checkpoint)
-    
+
     def getattr(self, attr_name):
+        """Use dot notation to get message attribute"""
         if attr_name in self.original_message:
             return self.original_message[attr_name]
-        
+
         return None
