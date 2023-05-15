@@ -106,12 +106,26 @@ class GPTBot:
             "best_of": ('range', {"value": 1, "min": 1, "max": 20, "step": 1}),
             "api_key": ("file", {"value": ""}),
         }
+    
+    def config_values(self):
+        """Returns current instance config values"""
+        return {
+            "prompt": self.prompt,
+            "model": self.model_config['model'],
+            "temperature": self.model_config['temperature'],
+            "max_tokens": self.model_config['max_tokens'],
+            "top_p": self.model_config['top_p'],
+            "frequency_penalty": self.model_config['frequency_penalty'],
+            "presence_penalty": self.model_config['presence_penalty'],
+            "best_of": self.model_config['best_of'],
+            "api_key": self.api_key,
+        }
 
     def _set_config(self, original, data, key, convert=str):
-        """Sets config"""
+        """Sets config of model_config"""
         self.model_config[key] = convert(data.get(key, original[key]))
 
-    def start(self, instance: ChatInstance, data: dict):
+    def set_config(self, instance: ChatInstance, data: dict, start=False):
         """Initializes bot"""
         original = self.config()
         self.prompt = data.get("prompt", self.prompt)
@@ -124,11 +138,12 @@ class GPTBot:
         self._set_config(original, data, 'presence_penalty', float)
         self._set_config(original, data, 'best_of', int)
 
-        instance.history.append(MessageContext.create_message(
-            "I am a GPT bot",
-            "bot"
-        ))
-        instance.config["enable_autocomplete"] = False
+        if start:
+            instance.history.append(MessageContext.create_message(
+                "I am a GPT bot",
+                "bot"
+            ))
+            instance.config["enable_autocomplete"] = False
 
     def refresh(self, instance: ChatInstance):
         """Refresh chatbot"""

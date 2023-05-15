@@ -97,3 +97,11 @@ export interface IConfigVar<T> extends Writable<T> {
 }
 
 export type ILoaderForm = { [formkey: string]: [string, any] } 
+
+export interface IChatInstanceInfo {
+  mode: string;
+  history: IChatMessage[];
+  config: { [id: string]: any };
+  bot_config: { [id: string]: string | null };
+  bot_config_loader: ILoaderForm;
+}

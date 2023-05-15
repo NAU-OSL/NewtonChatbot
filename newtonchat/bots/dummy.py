@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ..comm.message import MessageContext 
+from ..comm.message import MessageContext
 
 if TYPE_CHECKING:
     from ..comm.chat_instance import ChatInstance
@@ -19,9 +19,17 @@ class DummyBot:
         """Defines configuration inputs for bot"""
         return {"format_str": ('text', {"value": "{}, ditto"})}
 
-    def start(self, instance: ChatInstance, data: dict):
+    def config_values(self):
+        """Returns current instance config values"""
+        return {
+            "format_str": self.format_str,
+        }
+
+    def set_config(self, instance: ChatInstance, data: dict, start=False):
         """Initializes bot"""
         self.format_str = data.get("format_str", self.format_str)
+        if not start:
+            return
         instance.history.append(MessageContext.create_message(
             f"Hello, I am a dummy bot that repeats messages using the template {self.format_str}",
             "bot"
@@ -51,7 +59,7 @@ class DummyBot:
     def save(self):
         """Saves bot"""
         return {'format_str': self.format_str}
-    
+
     def load(self, data):
         """Loads bot"""
         self.format_str = data.get('format_str', self.format_str)

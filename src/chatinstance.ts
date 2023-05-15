@@ -1,15 +1,17 @@
 import { get, writable, type Writable } from "svelte/store";
-import { MessageDisplay, type IAutoCompleteItem, type IChatMessage, type IConfigVar, type Subset } from "./common/chatbotInterfaces";
+import { MessageDisplay, type IAutoCompleteItem, type IChatMessage, type IConfigVar, type Subset, type ILoaderForm } from "./common/chatbotInterfaces";
 import { checkTarget, cloneMessage, messageTarget } from "./common/messages";
 import type { NotebookCommModel } from "./dataAPI/NotebookCommModel";
 import { wizardMode, wizardPreviewMessage } from "./stores";
 
-export function createChatInstance(model: NotebookCommModel, chatName: string, mode: string) {
+export function createChatInstance(model: NotebookCommModel, chatName: string, mode: string, loader: ILoaderForm, botlConfig: { [id: string]: string | null }) {
     let current: IChatMessage[] = [];
     let autoCompleteResponseId = writable(-1);
     let replying: Writable<string | null> = writable(null);
     let autoCompleteItems: Writable<IAutoCompleteItem[]> = writable<IAutoCompleteItem[]>([]);
     let configMap: { [id: string]: IConfigVar<any>} = {};
+    let botLoader: Writable<ILoaderForm> = writable<ILoaderForm>(loader);
+    let botConfig: Writable<{ [id: string]: string | null }> = writable(botlConfig);
   
     function createConfigVar<T>(name: string, value: T) {
       let { subscribe, set, update } = writable(value);
@@ -124,6 +126,10 @@ export function createChatInstance(model: NotebookCommModel, chatName: string, m
     function sendAutoComplete(requestId: number, query: string) {
       model.sendAutoCompleteQuery(chatName, requestId, query);
     }
+
+    function sendUpdateInstanceBot(data: { [id: string]: string | null }) {
+      model.sendUpdateInstanceBot(chatName, data);
+    }
   
     function refresh() {
       console.log("refresh", chatName)
@@ -145,6 +151,7 @@ export function createChatInstance(model: NotebookCommModel, chatName: string, m
       reset,
       findById,
       sendAutoComplete,
+      sendUpdateInstanceBot,
       refresh,
 
       model,
@@ -153,7 +160,10 @@ export function createChatInstance(model: NotebookCommModel, chatName: string, m
       config,
       autoCompleteResponseId,
       autoCompleteItems,
-      replying
+      replying,
+
+      botLoader,
+      botConfig
     };
   }
 

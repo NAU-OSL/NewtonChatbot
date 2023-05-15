@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { notebookCommModel, wizardMode } from "../../stores";
+  import { wizardMode } from "../../stores";
   import Renderer from "./status/Renderer.svelte";
   import { onKeyPress } from '../../common/utils';
   import { openPanel } from "../SveltePanelView";
@@ -14,19 +14,21 @@
   import Load from "../icons/fa-load.svelte";
   import Cog from "../icons/fa-cog.svelte";
   import WizardCell from "../icons/wizardcell.svelte";
+  import InstanceForm from "./InstanceForm.svelte";
 
   export let chatInstance: IChatInstance;
   export let title: string;
   export let showConfigs: boolean = true;
   export let showLoadConfig: boolean = false;
   
-  let { processInKernel, enableAutoComplete, showReplied, showIndex, showTime, showBuildMessages, showKernelMessages, enableAutoLoading, loading, showMetadata, processBaseChatMessage, directSendToUser, showExtraMessages } = chatInstance.config;  
+  let { processInKernel, enableAutoComplete, showReplied, showIndex, showTime, showBuildMessages, showKernelMessages, enableAutoLoading, loading, showMetadata, processBaseChatMessage, directSendToUser, showExtraMessages } = chatInstance.config;
+  let { botConfig, botLoader } = chatInstance;  
   let loadInput: HTMLInputElement;
   let loadInstancesData: any = null;
   let loadForms: [string, {[id: string]: [string, any]}, {[id: string]: any}][] = [];
 
   function openExtraChat() {
-    const model = $notebookCommModel;
+    const model = chatInstance.model;
     if (model) {
       openPanel(ExtraChatPanel, "Extra chat", { model }, 'split-right');
     }
@@ -34,7 +36,7 @@
   }
 
   function openWizardCell() {
-    const model = $notebookCommModel;
+    const model = chatInstance.model;
     if (model) {
       openPanel(WizardCellPanel, "Wizard cell", { model }, 'split-right');
     }
@@ -49,7 +51,7 @@
   }
 
   const refresh = (): void => {
-    $notebookCommModel?.refresh();
+    chatInstance.model.refresh();
   }
 
   function findForms(data: any, currentKey: string) {
@@ -105,14 +107,18 @@
   }
 
   function loadInstances() {
-    $notebookCommModel?.sendLoadInstances(loadInstancesData);
+    chatInstance.model.sendLoadInstances(loadInstancesData);
     loadForms = [];
     loadInstancesData = null;
     showLoadConfig = false;
   }
 
   function saveInstances() {
-    $notebookCommModel?.sendSaveInstances();
+    chatInstance.model.sendSaveInstances();
+  }
+
+  function updateInstance(event: CustomEvent<{data: { [id: string]: string | null }}>) {
+    chatInstance.sendUpdateInstanceBot(event.detail.data);
   }
 
 </script>
@@ -188,6 +194,11 @@
         <ToggleButton bind:checked={$directSendToUser} title="Display button to send message directly to user">Direct send</ToggleButton>
         <ToggleButton bind:checked={$showExtraMessages} title="Show non-gpt messages (extra chat only)">Extra Messages</ToggleButton>
       </div>
+      {#if Object.keys($botLoader).length !== 0}
+      <div>
+        <InstanceForm bind:form={$botLoader} custom={botConfig} buttonLabel="Update" on:save={updateInstance}/>
+      </div>
+      {/if}
     {/if}
   </header>
   

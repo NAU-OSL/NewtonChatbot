@@ -70,9 +70,15 @@ class NewtonBot:
         """Defines configuration inputs for bot"""
         return {}
 
-    def start(self, instance: ChatInstance, data: dict):
+    def config_values(self):
+        """Returns current instance config values"""
+        return {}
+
+    def set_config(self, instance: ChatInstance, data: dict, start=False):
         """Initializes bot"""
         # pylint: disable=unused-argument
+        if not start:
+            return
         instance.history.append(MessageContext.create_message(
             ("Hello, I am Newton, an assistant that can help you with machine learning. "
              "You can ask me questions at any given time and go back to previous questions too. "

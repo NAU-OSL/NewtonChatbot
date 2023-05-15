@@ -18,6 +18,7 @@ import type {
 import {
   GenericMatcher,
   type IAutoCompleteItem,
+  type IChatInstanceInfo,
   type IChatMessage,
   type IKernelMatcher,
   type ILoaderForm,
@@ -45,7 +46,7 @@ export class NotebookCommModel {
     this._icomm = null;
     this._language = GenericMatcher;
     this.chatInstances = writable({
-      "base": createChatInstance(this, "base", "newton") // Passing this here may cause a memory leak, but I haven't checked
+      "base": createChatInstance(this, "base", "newton", {}, {}) // Passing this here may cause a memory leak, but I haven't checked
     });
     this.chatLoaders = writable({});
     //this._boundQueryCall = this._queryCall.bind(this);
@@ -295,6 +296,14 @@ export class NotebookCommModel {
     });
   }
 
+  sendUpdateInstanceBot(instance: string, data: { [id: string]: string | null; }) {
+    this.send({
+      operation: 'update-instance-bot',
+      instance,
+      data
+    });
+  }
+
   private async _setKernelLanguage(kernel: IKernelConnection) {
     const infoReply = await kernel.info;
     this._language = GenericMatcher;
@@ -343,6 +352,14 @@ export class NotebookCommModel {
   /*
    * Handle query response
    */
+
+  private _loadInstanceInfo(chatInstance: IChatInstance, info: IChatInstanceInfo) {
+    chatInstance.load(info.history);
+    this._loadInstanceConfig(chatInstance, info.config);
+    chatInstance.botConfig.set(info.bot_config);
+    chatInstance.botLoader.set(info.bot_config_loader);
+  }
+
   private _loadInstanceConfig(chatInstance: IChatInstance, config: { [id: string]: any }) {
     for (const [key, value] of Object.entries(config)) {
       let configVar = chatInstance.configMap[key];
@@ -353,7 +370,7 @@ export class NotebookCommModel {
     }
   }
 
-  private _loadInstances(instances: { [id: string]: string }) {
+  private _loadInstances(instances: { [id: string]: IChatInstanceInfo }) {
     let changed = false;
     let chatInstancesObj = get(this.chatInstances);
     for (const instance of Object.keys(chatInstancesObj)) {
@@ -362,9 +379,12 @@ export class NotebookCommModel {
         changed = true;
       }
     }
-    for (const [instance, mode] of Object.entries(instances)) {
+    for (const [instance, info] of Object.entries(instances)) {
       if (!(instance in chatInstancesObj)) {
-        chatInstancesObj[instance] = createChatInstance(this, instance, mode);
+        chatInstancesObj[instance] = createChatInstance(
+          this, instance, info.mode, info.bot_config_loader, info.bot_config
+        );
+        this._loadInstanceInfo(chatInstancesObj[instance], info);
         chatInstancesObj[instance].refresh();
         changed = true;
       }
@@ -380,12 +400,10 @@ export class NotebookCommModel {
     try {
       const operation = msg.content.data.operation;
       const instance = msg.content.data.instance as string;
-      console.log(operation, instance)
       if (instance === "<meta>") {
         if (operation === 'sync-meta') {
-          console.log('aaaa', msg.content.data)
           this.chatLoaders.set(msg.content.data.loaders as unknown as { [id: string]: ILoaderForm });
-          const instances = msg.content.data.instances as unknown as { [id: string]: string };
+          const instances = msg.content.data.instances as unknown as { [id: string]: IChatInstanceInfo };
           this._loadInstances(instances);
         }
         if (operation === 'instances') {
@@ -415,9 +433,7 @@ export class NotebookCommModel {
       }
       if (operation === 'init' || operation === 'refresh') {
         kernelStatus.setattr('hasKernel', true);
-        console.log("Load", instance, msg.content.data)
-        chatInstance.load(msg.content.data.history as unknown as IChatMessage[]);        
-        this._loadInstanceConfig(chatInstance, msg.content.data.config as unknown as { [id: string]: any });
+        this._loadInstanceInfo(chatInstance, msg.content.data as unknown as IChatInstanceInfo);
       } else if (operation === 'reply') {
         kernelStatus.setattr('hasKernel', true);
         const message: IChatMessage = msg.content.data

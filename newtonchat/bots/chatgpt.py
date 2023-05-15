@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import traceback
 import json
-import openai
 
 from typing import TYPE_CHECKING
+
+import openai
 
 from ..comm.message import MessageContext
 
@@ -43,11 +44,26 @@ class ChatGPTBot:
             "api_key": ("file", {"value": ""}),
         }
 
+    def config_values(self):
+        """Returns current instance config values"""
+        return {
+            "prompt": self.prompt,
+            "rules_to_be_followed": self.rules_to_be_followed,
+            "model": self.model_config['model'],
+            "temperature": self.model_config['temperature'],
+            "max_tokens": self.model_config['max_tokens'],
+            "top_p": self.model_config['top_p'],
+            "frequency_penalty": self.model_config['frequency_penalty'],
+            "presence_penalty": self.model_config['presence_penalty'],
+            "n": self.model_config['n'],
+            "api_key": self.api_key,
+        }
+
     def _set_config(self, original, data, key, convert=str):
-        """Sets config"""
+        """Sets config of model_config"""
         self.model_config[key] = convert(data.get(key, original[key]))
 
-    def start(self, instance: ChatInstance, data: dict):
+    def set_config(self, instance: ChatInstance, data: dict, start=False):
         """Initializes bot"""
         try:
             original = self.config()
@@ -64,19 +80,20 @@ class ChatGPTBot:
 
             instance.config["enable_autocomplete"] = False
 
-            self.conversation_context = []
-            self.attach_prompt_message("system", self.prompt)
+            if start:
+                self.conversation_context = []
+                self.attach_prompt_message("system", self.prompt)
 
-            response_messages = self.get_response_messages()
+                response_messages = self.get_response_messages()
 
-            for message_content in response_messages:
-                instance.history.append(MessageContext.create_message(
-                    message_content,
-                    "bot",
-                    is_gpt_message=True
-                ))
+                for message_content in response_messages:
+                    instance.history.append(MessageContext.create_message(
+                        message_content,
+                        "bot",
+                        is_gpt_message=True
+                    ))
 
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             instance.reply_message(MessageContext.create_message(traceback.format_exc(), "error"))
 
     def refresh(self, instance: ChatInstance):
@@ -96,7 +113,7 @@ class ChatGPTBot:
                 context.instance.config['conversation_context_updated'] = self.conversation_context
 
             elif context.getattr('isUserPrompt'):
-                conv_context = self.attach_prompt_message(
+                self.attach_prompt_message(
                     "user",  self.get_trimmed_message(context.text))
 
                 response_messages = self.get_response_messages()
@@ -104,7 +121,7 @@ class ChatGPTBot:
                 for message_content in response_messages:
                     context.reply(message_content, is_gpt_message=True)
 
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             context.reply(traceback.format_exc(), "error")
 
     def process_autocomplete(self, instance: ChatInstance, request_id: int, query: str):
@@ -141,6 +158,7 @@ class ChatGPTBot:
 
 
     def attach_prompt_message(self, role, content):
+        """Attaches message to conversation context"""
         if role == "user" and self.rules_to_be_followed:
             rules = self.rules_to_be_followed
             content = f"{content} \\n {rules}"
@@ -155,9 +173,13 @@ class ChatGPTBot:
         return self.conversation_context
 
     def get_trimmed_message(self, message):
+        """Removes metadata from message"""
+        # pylint: disable=no-self-use
         return message.split('####metadata#:')[0].replace('####markdown#:\n', '')
 
     def get_response_messages(self):
+        """Send conversation context to ChatGPT and returns response messages"""
+        # pylint: disable=broad-exception-raised
         openai.api_key = self.api_key
 
         response = openai.ChatCompletion.create(

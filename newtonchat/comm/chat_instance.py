@@ -63,17 +63,26 @@ class ChatInstance:
 
     def start_bot(self, data: dict):
         """Starts bot and sets history map"""
-        self.bot.start(self, data)
+        self.bot.set_config(self, data, start=True)
         for message in self.history:
             self.message_map[message['id']] = message
         return self
+
+    def info(self):
+        """Return chat instance info"""
+        return {
+            "mode": self.mode,
+            "history": self.history,
+            "config": self.config,
+            "bot_config": self.bot.config_values(),
+            "bot_config_loader": self.bot.config(),
+        }
 
     def sync_chat(self, operation):
         """Sends message with history and general config"""
         self.send({
             "operation": operation,
-            "history": self.history,
-            "config": self.config,
+            **self.info()
         })
 
     def refresh(self):
@@ -112,6 +121,9 @@ class ChatInstance:
                     "operation": "update-message",
                     "message": message,
                 })
+            elif operation == "update-instance-bot":
+                self.bot.set_config(self, data['data'], start=False)
+                self.refresh()
         except Exception:  # pylint: disable=broad-except
             print(traceback.format_exc())
             self.send({

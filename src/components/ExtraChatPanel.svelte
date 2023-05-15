@@ -6,9 +6,9 @@
   import Chat from "./chat/Chat.svelte";
   import Header from './header/Header.svelte';
   import IconButton from "./generic/IconButton.svelte";
-  import DynamicInput from "./jsonform/DynamicInput.svelte";
   import { wizardOpenChatInstance } from "../stores";
   import {onDestroy} from "svelte";
+  import InstanceForm from "./header/InstanceForm.svelte";
 
   export let model: NotebookCommModel;
 
@@ -19,14 +19,8 @@
   let mode: string = "";
   let newForm: ILoaderForm | null = null;
 
-  let formValues: { [id: string]: {
-    type: string,
-    value: any
-  } } = {};
-
   function deselectEverything() {
     instanceName = null;
-    // chatInstance = null;
     deselectChatInstance();
     newForm = null;
   }
@@ -68,27 +62,19 @@
       newForm = null;
     } else if (mode.startsWith("new:")) {
       instanceName = null;
-      // chatInstance = null;
       deselectChatInstance();
       newForm = $chatLoaders[mode.substring("new:".length)] || {};
-      for (const [key, [type_, config]] of Object.entries(newForm)) {
-        formValues[key] = {type: type_, value: config.value};
-      }
 
     } else {
       deselectEverything();
     }
   }
 
-  function createInstance() {
+  function createInstance(event: CustomEvent<{data: { [id: string]: string | null }}>) {
     let newKey = crypto.randomUUID();
     let newMode = mode.substring("new:".length);
-    $chatInstances[newKey] = createChatInstance(model, newKey, newMode);
-    let data: { [id: string]: string | null } = {};
-    for (const [key, { value }] of Object.entries(formValues)) {
-      data[key] = value;
-    }
-    model.sendCreateInstance(newKey, newMode, data);
+    $chatInstances[newKey] = createChatInstance(model, newKey, newMode, newForm || {}, event.detail.data);
+    model.sendCreateInstance(newKey, newMode, event.detail.data);
     selectExisting(newKey);
   }
 
@@ -143,29 +129,23 @@
   </div>
 
   {#if newForm }
-  <form>
-    {#each Object.entries(newForm) as [key, [type, config]] (key)}
-      <DynamicInput {key} {type} {config} bind:value={formValues[key].value}/>
-    {/each}
-    <button on:click|preventDefault={createInstance}>Create</button>
-  </form>
+    <InstanceForm form={newForm} on:save={createInstance}/>
   {/if}
 
   {#if chatInstance}
+    {#key chatInstance}
     <Header {chatInstance} title="{chatInstance.mode} - {model.name }" showConfigs={false}/>
-    <div class="chatContainer">
-      <Chat {chatInstance} isExtraChat={true}/>
-    </div>
-    <div class="wizardPanelText">
-      <AutoCompleteInput {chatInstance} isExtraChat={true}/>
-    </div>
+    {/key}
+    <Chat {chatInstance} isExtraChat={true}/>
+    <AutoCompleteInput {chatInstance} isExtraChat={true}/>
   {/if}
 </div>
 
 <style>
   .panel {
     height: 100%;
-    position: relative;
+    display: flex;
+    flex-direction: column;
   }
 
   .selector {
@@ -174,33 +154,10 @@
     flex-wrap: wrap;
   }
 
-  form {
-    padding: 0 1em;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    justify-content: center;
-    margin: auto;
-  }
-
-  button {
-    cursor: pointer;
-  }
-
   label {
     display: flex;
     box-sizing: border-box;
   }
 
-  .chatContainer{
-    height: 75%;
-  }
-
-  .wizardPanelText {
-    position: absolute !important;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
 
 </style>

@@ -44,7 +44,7 @@ class KernelComm:
                 for key, value in LOADERS.items()
             },
             "instances": {
-                key: value.mode
+                key: value.info()
                 for key, value in self.chat_instances.items()
             },
         })
