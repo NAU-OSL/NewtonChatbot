@@ -48,7 +48,6 @@
     flex-direction: column;
     gap: 15px;
     justify-content: center;
-    margin: auto;
     overflow: auto;
   }
 

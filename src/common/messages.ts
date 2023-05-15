@@ -216,6 +216,8 @@ async function cloneMessageWithMetadata(chatInstance: IChatInstance, message: IC
 
 export async function sendMessageToBuild(chatInstance: IChatInstance, message: IChatMessage, preview: boolean) {
   let newMessage = await cloneMessageWithMetadata(chatInstance, message, preview);
+  newMessage.alternatives = [];
+  newMessage.selectedAlt = -1;
   wizardPreviewMessage.set([...get(wizardPreviewMessage), newMessage]);
 }
 
@@ -224,7 +226,9 @@ export async function selectChatGPTResponse(chatInstance: IChatInstance, message
   newMessage= {
     ...newMessage,
     type: 'bot',
-    isGPTMessage : true,
+    alternatives: [],
+    selectedAlt: -1,
+    inConversationContext: true,
     ...messageTarget('bot'),
   };
   chatInstance.addNew(newMessage);
@@ -245,7 +249,9 @@ export async function sendChatGPTRequest(chatInstance: IChatInstance, message: I
     newMessage= {
       ...newMessage,
       type:'user',
-      isUserPrompt : true,
+      alternatives: [],
+      selectedAlt: -1,
+      inConversationContext: true,
       ...messageTarget('bot'),
     };
     
@@ -260,6 +266,8 @@ export async function sendMessageToUser(chatInstance: IChatInstance, message: IC
     instance = chatInstance;
   }
   let newMessage = await cloneMessageWithMetadata(instance, message, preview);
+  newMessage.alternatives = [];
+  newMessage.selectedAlt = -1;
   instance.addNew(newMessage);
 }
 

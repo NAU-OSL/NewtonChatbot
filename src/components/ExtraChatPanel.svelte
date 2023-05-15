@@ -128,8 +128,10 @@
     {/if}
   </div>
 
-  {#if newForm }
-    <InstanceForm form={newForm} on:save={createInstance}/>
+  {#if newForm != null }
+    {#key newForm}
+      <InstanceForm form={newForm} on:save={createInstance}/>
+    {/key}
   {/if}
 
   {#if chatInstance}

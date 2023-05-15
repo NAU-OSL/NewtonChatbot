@@ -62,9 +62,10 @@ export interface IChatMessage extends ITargetDefinition {
   feedback: IFeedback;
   loading: boolean;
 
-  new?: boolean;
-  isUserPrompt?: boolean;
-  isGPTMessage?: boolean;
+  new?: boolean; // Check
+  alternatives: string[];
+  selectedAlt: number;
+  inConversationContext: boolean;
 }
 
 export interface IAutoCompleteItem {

@@ -73,6 +73,9 @@
         otherreason: ""
       },
       loading: false,
+      alternatives: [],
+      selectedAlt: -1,
+      inConversationContext: false,
       ...messageTarget(wizardModeTarget)
     }
   }

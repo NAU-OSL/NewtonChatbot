@@ -21,7 +21,7 @@
   export let showConfigs: boolean = true;
   export let showLoadConfig: boolean = false;
   
-  let { processInKernel, enableAutoComplete, showReplied, showIndex, showTime, showBuildMessages, showKernelMessages, enableAutoLoading, loading, showMetadata, processBaseChatMessage, directSendToUser, showExtraMessages } = chatInstance.config;
+  let { processInKernel, enableAutoComplete, showReplied, showIndex, showTime, showBuildMessages, showKernelMessages, enableAutoLoading, loading, showMetadata, processBaseChatMessage, directSendToUser } = chatInstance.config;
   let { botConfig, botLoader } = chatInstance;  
   let loadInput: HTMLInputElement;
   let loadInstancesData: any = null;
@@ -192,7 +192,6 @@
         <ToggleButton bind:checked={$showIndex} title="Show message index">Index</ToggleButton>
         <ToggleButton bind:checked={$showMetadata} title="Show message metadata">Metadata</ToggleButton>
         <ToggleButton bind:checked={$directSendToUser} title="Display button to send message directly to user">Direct send</ToggleButton>
-        <ToggleButton bind:checked={$showExtraMessages} title="Show non-gpt messages (extra chat only)">Extra Messages</ToggleButton>
       </div>
       {#if Object.keys($botLoader).length !== 0}
       <div>

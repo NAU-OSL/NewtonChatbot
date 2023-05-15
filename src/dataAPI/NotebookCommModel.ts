@@ -280,7 +280,7 @@ export class NotebookCommModel {
     this.send({
       operation: 'sync-message',
       instance,
-      message
+      message: (message as JSONObject)
     })
   }
 

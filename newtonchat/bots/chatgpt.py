@@ -22,7 +22,7 @@ class ChatGPTBot:
         self.api_key = ""
         self.model_config = {}
         self.rules_to_be_followed = ""
-        self.conversation_context = []
+        self.context_window = 0
 
     @classmethod
     def config(cls):
@@ -81,17 +81,17 @@ class ChatGPTBot:
             instance.config["enable_autocomplete"] = False
 
             if start:
-                self.conversation_context = []
-                self.attach_prompt_message("system", self.prompt)
+                instance.history.append(MessageContext.create_message(
+                    self.prompt, "system", in_conversation_context=True
+                ))
 
-                response_messages = self.get_response_messages()
+                response_messages = self.get_response_messages(instance)
 
-                for message_content in response_messages:
-                    instance.history.append(MessageContext.create_message(
-                        message_content,
-                        "bot",
-                        is_gpt_message=True
-                    ))
+                instance.history.append(MessageContext.create_message(
+                    response_messages,
+                    "bot",
+                    in_conversation_context=True
+                ))
 
         except Exception:  # pylint: disable=broad-exception-caught
             instance.reply_message(MessageContext.create_message(traceback.format_exc(), "error"))
@@ -104,23 +104,12 @@ class ChatGPTBot:
     def process_message(self, context: MessageContext) -> None:
         """Processes user messages"""
         # pylint: disable=unused-argument
-
         try:
-            if context.getattr('isGPTMessage'):
-                self.attach_prompt_message(
-                    "assistant", self.get_trimmed_message(context.text))
-
-                context.instance.config['conversation_context_updated'] = self.conversation_context
-
-            elif context.getattr('isUserPrompt'):
-                self.attach_prompt_message(
-                    "user",  self.get_trimmed_message(context.text))
-
-                response_messages = self.get_response_messages()
-
-                for message_content in response_messages:
-                    context.reply(message_content, is_gpt_message=True)
-
+            response_messages = self.get_response_messages(context.instance)
+            context.reply(
+                response_messages,
+                in_conversation_context=True
+            )
         except Exception:  # pylint: disable=broad-exception-caught
             context.reply(traceback.format_exc(), "error")
 
@@ -140,7 +129,7 @@ class ChatGPTBot:
             "config": self.model_config,
             "prompt": self.prompt,
             "rules_to_be_followed": self.rules_to_be_followed,
-            "conversation_context": self.conversation_context,
+            "context_window": self.context_window,
             "!form": {
                 "api_key": ("file", {"value": ""})
             }
@@ -152,38 +141,52 @@ class ChatGPTBot:
             self.model_config = {**self.model_config, **data["config"]}
         self.prompt = data.get("prompt", self.prompt)
         self.rules_to_be_followed = data.get("rules_to_be_followed", self.rules_to_be_followed)
-        self.conversation_context = data.get("conversation_context", self.conversation_context)
+        self.context_window = data.get("context_window", self.context_window)
         if form := data.get("!form", None):
             self.api_key = form.get("api_key", "").strip()
 
-
-    def attach_prompt_message(self, role, content):
-        """Attaches message to conversation context"""
-        if role == "user" and self.rules_to_be_followed:
-            rules = self.rules_to_be_followed
-            content = f"{content} \\n {rules}"
-
-        self.conversation_context.append(
-            {
-                "role": role,
-                "content": content
-            }
-        )
-
-        return self.conversation_context
 
     def get_trimmed_message(self, message):
         """Removes metadata from message"""
         # pylint: disable=no-self-use
         return message.split('####metadata#:')[0].replace('####markdown#:\n', '')
 
-    def get_response_messages(self):
+    def get_response_messages(self, instance):
         """Send conversation context to ChatGPT and returns response messages"""
         # pylint: disable=broad-exception-raised
         openai.api_key = self.api_key
 
+        conversation_context = []
+        conversation_context_ids = []
+        for pos, message in enumerate(instance.history):
+            if message.get("inConversationContext", False):
+                role = message["type"]
+                if role == "bot":
+                    role = "assistant"
+                if role not in {"system", "user", "assistant"}:
+                    continue
+
+                position = str(pos)
+                if message.get("selectedAlt", -1) == -1:
+                    content = message["text"]
+                else:
+                    content = message["alternatives"][message["selectedAlt"]]
+                    position += f'|{message["selectedAlt"]}'
+
+                content = self.get_trimmed_message(content)
+                if role == "user" and self.rules_to_be_followed:
+                    content = f"{content} \\n {self.rules_to_be_followed}"
+                    position += ':R'
+
+                conversation_context_ids.append(position)
+                conversation_context.append(
+                    {
+                        "role": role,
+                        "content": content
+                    }
+                )
         response = openai.ChatCompletion.create(
-            messages=self.conversation_context,
+            messages=conversation_context[self.context_window:],
             **self.model_config
         )
 
@@ -195,16 +198,17 @@ class ChatGPTBot:
         total_tokens_used = response["usage"]["total_tokens"]
 
         if total_tokens_used > 3000:
-            self.conversation_context.pop()
+            self.context_window += 1
 
-        meta_json = json.dumps({"tokens": total_tokens_used})
+        meta_json = json.dumps({
+            "tokens": total_tokens_used,
+            "context": conversation_context_ids,
+            "context_window": self.context_window 
+        })
 
         for response_choice in response["choices"]:
             message = getattr(response_choice, "message")
-
             content = getattr(message, "content").strip()
-
-            self.attach_prompt_message("assistant", content)
 
             response_messages.append(
                 f"####markdown#:\n{content}\n####metadata#:{meta_json}")

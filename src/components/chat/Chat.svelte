@@ -7,8 +7,6 @@
   export let chatInstance: IChatInstance;
   export let isExtraChat: boolean;
 
-  let { showExtraMessages } = chatInstance.config;
-  
   let div: HTMLElement;
   let autoscroll = true;
 
@@ -38,8 +36,6 @@
 
 <div bind:this={div}>
   {#each $chatInstance as message, index (message.id)}
-    {#if $showExtraMessages || !isExtraChat || (message.type == "error") || message.isGPTMessage || message.isUserPrompt }
-      <Message {chatInstance} {message} chat={div} {scrollBottom} {index} {isExtraChat}/>
-    {/if}
+    <Message {chatInstance} {message} chat={div} {scrollBottom} {index} {isExtraChat}/>
   {/each}
 </div>

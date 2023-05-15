@@ -12,6 +12,7 @@
   import Save from "../../icons/fa-save.svelte";
   import Title from "../../icons/title.svelte";
   import ChatIcon from "../../icons/chaticon.svelte";
+  import Robot from "../../icons/fa-robot.svelte";
 
   export let chatInstance: IChatInstance;
   export let message: IChatMessage;
@@ -45,6 +46,22 @@
     await sendChatGPTRequest(chatInstance, message, false);
   }
 
+  function selectMessageAlt(event: Event & { currentTarget: EventTarget & HTMLSelectElement; }) {
+    message.text = message.alternatives[message.selectedAlt]
+    chatInstance.submitSyncMessage({
+      id: message.id,
+      text: message.text,
+      selectedAlt: message.selectedAlt
+    })
+  }
+
+  function toggleConversationContext(e: MouseEvent): void {
+    message.inConversationContext = !message.inConversationContext 
+    chatInstance.submitSyncMessage({
+      id: message.id,
+      inConversationContext: message.inConversationContext,
+    })
+  }
 </script>
 
 <div class="bottom {message.type}">
@@ -60,7 +77,7 @@
       {#if $directSendToUser}
         <IconButton title="To user" on:click={sendToUser}><ChatIcon/></IconButton>
       {/if}
-      {#if !isExtraChat && message.type != 'user' && !message.isGPTMessage}
+      {#if !isExtraChat && message.type != 'user' && !message.inConversationContext}
         <IconButton title="add to GPT context" on:click={addToGPTContext}><Save/></IconButton>
       {/if}
       {#if !isExtraChat && message.type == 'user'}
@@ -78,6 +95,22 @@
     {/if}
     {#if $showTime}
       <span class="timestamp">{ new Date(timestamp).toLocaleTimeString("en-US") }</span>
+    {/if}
+    {#if message.alternatives.length > 0}
+      <select bind:value={message.selectedAlt} on:change={selectMessageAlt}>
+        {#each message.alternatives as _, i (i) }
+          <option value={i}>{i + 1}</option>
+        {/each}
+      </select>
+    {/if}
+    {#if $wizardMode && isExtraChat}
+      {#key message.inConversationContext }
+        <IconButton 
+        title={message.inConversationContext? "Remove from Conversation Context" : "Add to Conversation Context"}
+        selected={message.inConversationContext} 
+        on:click={toggleConversationContext}
+      ><Robot/></IconButton>
+      {/key}
     {/if}
   </div>
 </div>

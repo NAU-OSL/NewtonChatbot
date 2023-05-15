@@ -232,11 +232,13 @@
         class="inner"
       >
         <div class="main">
-          <div class:gptlog={(message.isGPTMessage || message.isUserPrompt) && ($wizardMode)}>
+          <div>
             {#if reply}
             <Reply {chatInstance} {reply} {chat} {scrollBottom}/>
             {/if}
-            <MessageParts {chatInstance} {message} {preview} {scrollBottom}/>
+            {#key message.text}
+              <MessageParts {chatInstance} {message} {preview} {scrollBottom}/>
+            {/key}
           </div>
         </div>
         {#if !preview}
@@ -315,7 +317,4 @@
     padding: 0.4em;
   }
 
-  .main .gptlog {
-    border: 2px solid green;
-  }
 </style>

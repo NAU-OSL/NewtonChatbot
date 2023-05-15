@@ -100,6 +100,9 @@
         otherreason: ""
       },
       loading: $enableAutoLoading,
+      alternatives: [],
+      selectedAlt: -1,
+      inConversationContext: false,
       ...messageTarget('bot')
     })
     clear();

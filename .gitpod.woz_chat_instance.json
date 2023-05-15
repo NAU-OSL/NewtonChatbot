@@ -9,7 +9,7 @@
                     "id": "a2a404bf-4872-4bd3-8a92-21d8c1d7f92d",
                     "text": "Hello, I am Newton, an assistant that can translate pseudo-code into python code. How can I help you?",
                     "type": "bot",
-                    "timestamp": 1682633423933,
+                    "timestamp": 1684140391711,
                     "reply": null,
                     "display": 0,
                     "kernelProcess": 0,
@@ -20,7 +20,9 @@
                         "otherreason": ""
                     },
                     "loading": false,
-                    "isGPTMessage": null
+                    "alternatives": [],
+                    "selectedAlt": -1,
+                    "inConversationContext": false
                 }
             ],
             "config": {
@@ -49,20 +51,11 @@
                     "top_p": 0.9,
                     "frequency_penalty": 0,
                     "presence_penalty": 0,
-                    "n": 1
+                    "n": 3
                 },
                 "prompt": "Pretend that you are a Natural Language to Python Code translator named - 'Newton' and your goal is to translate the instructions given in natural language to Python code.\\nWhen the instruction can be converted into simple steps, give me the Python Code or else prompt the user to break the instruction into simple steps.\\nRespond with your name, when you're ready.",
                 "rules_to_be_followed": "Refrain the response only to the given instruction.",
-                "conversation_context": [
-                    {
-                        "role": "system",
-                        "content": "Pretend that you are a Natural Language to Python Code translator named - 'Newton' and your goal is to translate the instructions given in natural language to Python code.\\nWhen the instruction can be converted into simple steps, give me the Python Code or else prompt the user to break the instruction into simple steps.\\nRespond with your name, when you're ready."
-                    },
-                    {
-                        "role": "assistant",
-                        "content": "Hi! I am Newton, a Natural Language to Python Code translator. How may I assist you?"
-                    }
-                ],
+                "context_window": 0,
                 "!form": {
                     "api_key": [
                         "file",
@@ -74,10 +67,10 @@
             },
             "history": [
                 {
-                    "id": "6ec9b389-6be6-498b-a8a4-83a6e09a8925",
-                    "text": "####markdown#:\nHi! I am Newton, a Natural Language to Python Code translator. How may I assist you?\n####metadata#:{\"tokens\": 102}",
-                    "type": "bot",
-                    "timestamp": 1682633471520,
+                    "id": "67a9a274-7ef4-4f26-91bc-1917074445e1",
+                    "text": "Pretend that you are a Natural Language to Python Code translator named - 'Newton' and your goal is to translate the instructions given in natural language to Python code.\nWhen the instruction can be converted into simple steps, give me the Python Code or else prompt the user to break the instruction into simple steps.\nRespond with your name, when you're ready.",
+                    "type": "system",
+                    "timestamp": 1684140414624,
                     "reply": null,
                     "display": 0,
                     "kernelProcess": 0,
@@ -88,7 +81,32 @@
                         "otherreason": ""
                     },
                     "loading": false,
-                    "isGPTMessage": true
+                    "alternatives": [],
+                    "selectedAlt": -1,
+                    "inConversationContext": true
+                },
+                {
+                    "id": "bb386b3f-2c7d-4d70-9c2a-76b00410fda0",
+                    "text": "####markdown#:\nHello, I am Newton and I'm ready to translate natural language instructions into Python code. Let's get started!\n####metadata#:{\"tokens\": 145, \"context\": [\"0\"], \"context_window\": 0}",
+                    "type": "bot",
+                    "timestamp": 1684140417175,
+                    "reply": null,
+                    "display": 0,
+                    "kernelProcess": 0,
+                    "kernelDisplay": 0,
+                    "feedback": {
+                        "rate": 0,
+                        "reason": "",
+                        "otherreason": ""
+                    },
+                    "loading": false,
+                    "alternatives": [
+                        "####markdown#:\nHello, I am Newton and I'm ready to translate natural language instructions into Python code. Let's get started!\n####metadata#:{\"tokens\": 145, \"context\": [\"0\"], \"context_window\": 0}",
+                        "####markdown#:\nHello! I am Newton, the Natural Language to Python Code translator. How can I assist you today?\n####metadata#:{\"tokens\": 145, \"context\": [\"0\"], \"context_window\": 0}",
+                        "####markdown#:\nHi, I am Newton, the Natural Language to Python Code translator. How can I assist you today?\n####metadata#:{\"tokens\": 145, \"context\": [\"0\"], \"context_window\": 0}"
+                    ],
+                    "selectedAlt": 0,
+                    "inConversationContext": true
                 }
             ],
             "config": {
@@ -103,9 +121,12 @@
                 "show_build_messages": true,
                 "show_kernel_messages": true,
                 "show_metadata": false,
-                "direct_send_to_user": false
+                "direct_send_to_user": true
             }
         }
     },
-    "!!dead_instances": []
+    "!!dead_instances": [],
+    "!!sessions_history": [
+        ""
+    ]
 }

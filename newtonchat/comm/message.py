@@ -35,14 +35,14 @@ if TYPE_CHECKING:
         timestamp: int
         reply: str | None
         display: MessageDisplay
-
         kernelProcess: KernelProcess
         kernelDisplay: MessageDisplay
 
         feedback: IFeedback
-
         loading: bool
-        isGPTMessage: bool
+        alternatives: list[str]
+        selectedAlt: int
+        inConversationContext: bool
 
 
 class MessageDisplay(IntEnum):
@@ -69,13 +69,19 @@ class MessageContext:
 
     @staticmethod
     def create_message(
-        text: str,
+        text: str | list[str],
         type_: str,
         reply: str | None = None,
         display: MessageDisplay = MessageDisplay.DEFAULT,
-        is_gpt_message: bool = False
+        in_conversation_context: bool = False,
     ) -> IChatMessage:
         """Creates IChatMessage"""
+        alternatives = []
+        selected_alt = -1
+        if isinstance(text, list):
+            alternatives = text
+            text = text[0]
+            selected_alt = 0
         return {
             "id": str(uuid.uuid4()),
             "text": text,
@@ -91,7 +97,9 @@ class MessageContext:
                 "otherreason": "",
             },
             "loading": False,
-            "isGPTMessage": is_gpt_message
+            "alternatives": alternatives,
+            "selectedAlt": selected_alt,
+            "inConversationContext": in_conversation_context,
         }
 
     @property
@@ -99,17 +107,17 @@ class MessageContext:
         """Returns original message text"""
         return self.original_message['text']
 
-    def reply(self, text: str,
+    def reply(self, text: str | list[str],
                 type_: str="bot",
                 checkpoint: StateDefinition | None = None,
-                is_gpt_message: bool = False):
+                in_conversation_context: bool = False):
         """Reply indicating the reply_to field"""
         message = self.create_message(
             text,
             type_,
             self.original_message['id'],
             self.original_message['kernelDisplay'],
-            is_gpt_message
+            in_conversation_context
         )
         if checkpoint is not None:
             self.instance.checkpoints[message['id']] = checkpoint

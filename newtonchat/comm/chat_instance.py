@@ -1,6 +1,7 @@
 """Define a chat instance"""
 from __future__ import annotations
 from collections import defaultdict
+from copy import deepcopy
 import traceback
 import weakref
 from typing import TYPE_CHECKING, Any, cast
@@ -52,7 +53,6 @@ class ChatInstance:
             "show_kernel_messages": True,
             "show_metadata": False,
             "direct_send_to_user": False,
-            "show_extra_messages": False,
         }
         self.checkpoints: dict[str, StateDefinition | None] = {}
 
@@ -163,7 +163,9 @@ class ChatInstance:
         if replicate_other_instances:
             for chat_name, instance in comm_ref.chat_instances.items():
                 if chat_name != "base" and instance.config["process_base_chat_message"]:
-                    instance.receive_message(message)
+                    imessage = deepcopy(message)
+                    imessage["inConversationContext"] = True
+                    instance.receive_message(imessage)
 
 
     def receive_autocomplete_query(self, request_id, query):

@@ -50,6 +50,9 @@
         otherreason: ""
       },
       loading: $enableAutoLoading,
+      alternatives: [],
+      selectedAlt: -1,
+      inConversationContext: isExtraChat,
       ...messageTarget('bot')
     }
   }
@@ -59,9 +62,6 @@
       e.preventDefault();
       let newMessage = createMessage(value);
       if (newMessage !== null) {
-        if(isExtraChat)
-          newMessage.isUserPrompt = true;
-        
         chatInstance.addNew(newMessage);
         clear();
       }
