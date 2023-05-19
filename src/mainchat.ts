@@ -56,6 +56,9 @@ export class MainChat extends Panel {
             // ToDo: check if this is the appropriate place to call this function (connectNotebook)
             // This function resets all data in the notebook and reloads it from the server
             // It adds an overhead of reloading everything and makes the screen blink
+            if (get(notebookCommModel) == model) {
+              return;
+            }
             await model.connectNotebook();
             notebookCommModel.set(model);
             if (get(restrictNotebooks).includes(model.name)) {
